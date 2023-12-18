@@ -1,0 +1,53 @@
+---
+
+# Variables definition
+# Pycharm, target and working directories: C:\Users\victorm\PycharmProjects\pythonProject1\auto
+# set working dir below to be same as this
+# Version label
+
+dirs:
+  working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories
+  
+urls:
+  url: !!str "https://releasev2.cc.avayacloud.com"       # prod release v2
+  url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"
+  url_AnalyticsIntervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=starting:202312081000,ending:202312081015"              # used after initial login context saved
+  url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=starting:"     # will append yesterday's date YYYYMMDD
+  url_wfo: !!str "wfo.a31.verintcloudservices.com"
+  url_wfo_captVerifapi: !!str "/api/av/capture_verification/v1/call_segments/issues/search/csv"
+  url_wfo_SearchReplayapi: !!str "/daswebapi/Query/ExecuteDynamicQuery"
+# CCaaS API credentials
+auth:
+  clientid : !!str "wfm"                                          # clientid
+  secret : !!str "nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd"               # secret
+
+logs:
+  log_level : !!str "DEBUG" # all capital letters required for this field
+
+
+# LOG LEVELS
+# Level	Numeric Value	Description
+# Critical	50	Highest severity messages; may cause a program to crash or exit.
+# Error	40	High severity messages generally related to an operation failing that does not cause the program to crash or exit.
+# Warning	30	Potentially negative events that may cause abnormal operation or otherwise require attention (such as the use of a deprecated API).
+# Info	20	Messages that log standard/expected events.
+# Debug	10	Messages useful for debugging how an application is running.
+# Notset	0	Default level when a new logger is created. Setting the root logger to NOTSET logs all messages. For other loggers, NOTSET messages are delegated to parent loggers until a level other than NOTSET is found.
+
+#T1 tests:
+#1: SignOnWebpageTitle
+#2: Usernnme_logon_filed_available
+#3: WFO_Version_frontPage
+#4: Tenant_admin_signin
+#5: accessInteractionsSearchPage
+#6: searchCallsLast7d
+#7: searchCallFromToday 
+#8: searchCallDateString ( defined config.yaml)
+#9: searchCallUserString ( defined config.yaml)
+#10: logout
+
+#T0 tests:
+#1: SignOnWebpageTitle
+#2: Usernnme_logon_filed_available
+#3: WFO_Version_frontPage
+#4: Tenant_admin_signin
