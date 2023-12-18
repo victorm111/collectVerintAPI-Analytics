@@ -43,7 +43,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-class SearchReplay:
+class test_SearchReplay:
   def __init__(self, test_read_config_file: object) -> None:
     """init the class"""
 
@@ -51,13 +51,13 @@ class SearchReplay:
     self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-', '')  # yesterday's date for daily report
     self.title = 'SearchReplay'
     self.author = 'VW'
-    self.URL = test_read_config_file['urls']['url']
-    self.URL_api = 'null'
-    self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
-    self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
+    self.URL = test_read_config_file['urls']['url_wfo']
+    self.URL_api = test_read_config_file['urls']['url_wfo_SearchReplayapi']
+    # self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
+    # self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
-    self.DetailedReportInterval_df = pd.DataFrame()  # hold returned data, create empty
-    self.DetailedReportDaily_df = pd.DataFrame()  # hold return data
+    self.SR_df = pd.DataFrame()  # hold returned data, create empty
+    #self.DetailedReportDaily_df = pd.DataFrame()  # hold return data
     self.response_dict = 'null'
     self.token = 'null'
     self.payload = {}
@@ -65,78 +65,88 @@ class SearchReplay:
     self.session = 'null'
     self.retry = 'null'
     self.adapter = 'null'
+    self.Payload_org_id = test_read_config_file['requests']['sr_orgid']
+    self.Payload_start_time = test_read_config_file['requests']['sr_start_time']
+    self.Payload_end_time = test_read_config_file['requests']['sr_end_time']
+    self.Payload_issueFilter = test_read_config_file['requests']['sr_IssueFilter']
+    self.Payload_pageSize = test_read_config_file['requests']['sr_pageSize']
+    self.json_output = test_read_config_file['dirs']['SR_to_json_output']
+    self.csv_output = test_read_config_file['dirs']['SR_to_csv_output']
+    self.csv_headers = 'null'
 
     LOGGER.debug('retrieveDetailReport:: init finished')
     return
 
+  def test_getSearchAndReplay(self, getVerintToken):
+    """retrieves daily search and replay"""
 
-def test_getSearchAndReplay(getToken):
-  """retrieves daily search and replay"""
+    #url = 'wfo.a31.verintcloudservices.com'
+    #url_api = '/daswebapi/Query/ExecuteDynamicQuery'
+    #s='null'  # requests session variable
+    # create an Empty DataFrame object, holds capt verif results
 
-  url = 'wfo.a31.verintcloudservices.com'
-  url_api = '/daswebapi/Query/ExecuteDynamicQuery'
-  s='null'  # requests session variable
-  # create an Empty DataFrame object, holds capt verif results
-  df = pd.DataFrame()
+    self.SR_df = pd.DataFrame()
+    LOGGER.debug('test_getSearchAndReplay():: started')
+    self.token = getVerintToken
 
-  LOGGER.debug('test_getSearchAndReplay:: started')
-  token = 'null'
+    #self.token = os.environ["TOKEN"]
+    assert(self.token),'test_getSearchAndReplay token not retrieved'
+    LOGGER.debug('test_getSearchAndReplay:: token retrieved, build request')
 
-  token = os.environ["TOKEN"]
-  assert(token),'token not retrieved'
+    self.payload = json.dumps({
+      "org_id": self.Payload_org_id,
+      "start_time": self.Payload_start_time,
+      "end_time": self.Payload_start_time,
+      "page_size": self.Payload_pageSize,
+      "issue_filter": self.Payload_issueFilter
+    })
+    self.headers = {
+      'Verint-Session-ID': '42334',
+      'Verint-Time-Zone': 'ACST',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Impact360AuthToken': self.token
+    }
 
-  LOGGER.debug('test_getSearchAndReplay:: token retrieved')
-  payload = json.dumps({
-    "org_id": 708000501,
-    "start_time": "2023-12-12T05:00:00-04:00",
-    "end_time": "2023-12-13T05:00:00-04:00",
-    "page_size": 2000,
-    "issue_filter": {}
-  })
-  headers = {
-    'Verint-Session-ID': '42334',
-    'Verint-Time-Zone': 'ACST',
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Impact360AuthToken': token
-  }
+    # create a sessions object
+    self.session = requests.Session()
+    assert self.session,'test_getSearchAndReplay() session not created'
+    # Set the Content-Type header to application/json for all requests in the session
+    # session.headers.update({'Content-Type': 'application/json'})
 
-  # create a sessions object
-  session = requests.Session()
-  assert session,'session not created'
-  # Set the Content-Type header to application/json for all requests in the session
-  # session.headers.update({'Content-Type': 'application/json'})
+    self.retry = Retry(connect=25, backoff_factor=0.5)
 
-  retry = Retry(connect=25, backoff_factor=0.5)
+    self.adapter = HTTPAdapter(max_retries=self.retry)
+    self.session.mount('https://', self.adapter)
+    self.session.mount('http://', self.adapter)
+    # Set the Content-Type header to application/json for all requests in the session
+    self.session.headers.update(self.headers)
 
-  adapter = HTTPAdapter(max_retries=retry)
-  session.mount('https://', adapter)
-  session.mount('http://', adapter)
-  # Set the Content-Type header to application/json for all requests in the session
-  session.headers.update(headers)
-  try:
-    s=session.post('https://'+url+url_api, data=payload, timeout=25, verify=False)
-    s.raise_for_status()
-  except requests.exceptions.HTTPError as errh:
-    print("Http Error:", errh)
-  except requests.exceptions.ConnectionError as errc:
-    print("Error Connecting:", errc)
-  except requests.exceptions.Timeout as errt:
-    print("Timeout Error:", errt)
-  except requests.exceptions.RequestException as err:
-    print("OOps: Something Else", err)
+    try:
+      self.s=self.session.post('https://'+self.URL+self.URL_api, data=self.payload, timeout=25, verify=False)
+      self.s.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+      print("Http Error:", errh)
+    except requests.exceptions.ConnectionError as errc:
+      print("Error Connecting:", errc)
+    except requests.exceptions.Timeout as errt:
+      print("Timeout Error:", errt)
+    except requests.exceptions.RequestException as err:
+      print("OOps: Something Else", err)
 
-  assert s.status_code==200, 'session request response not 200 OK'
+    assert self.s.status_code==200, 'test_getSearchAndReplay() session request response not 200 OK'
 
-  print(f'test_getSearchAndReplay() session resp received code: {s.status_code}')
-  LOGGER.debug('test_getSearchAndReplay:: response received')
+    print(f'test_getSearchAndReplay() session resp received code: {self.s.status_code}')
+    LOGGER.debug('test_getSearchAndReplay:: response received')
 
-  response_dict = json.loads(s.text)
-  s.raise_for_status()
-  SR_df = pd.json_normalize(response_dict)
-  SR_df.to_json('./output/SR/SR_daily.json')
-
-  assert not len(SR_df) == 0, 'No SR_df returned'
+    self.response_dict = json.loads(self.s.text)
+    self.s.raise_for_status()
+    self.SR_df = pd.json_normalize(self.response_dict)
+    self.SR_df.to_json(self.json_output)
+    self.SR_df.to_csv(self.csv_output, encoding='utf-8',index=False, header=self.response_dict.get('Sessions')[0].keys())
+    #self.csv_headers = self.response_dict.get('Sessions')[0].keys()
+    assert not len(self.SR_df) == 0, 'test_getSearchAndReplay() no SR_df returned'
+    return self.SR_df
 
 
 

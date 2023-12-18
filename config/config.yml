@@ -7,7 +7,9 @@
 
 dirs:
   working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories
-  
+  SR_to_json_output: !!str './output/SR/SR_daily.json'
+  SR_to_csv_output: !!str './output/SR/testSR.csv'
+
 urls:
   url: !!str "https://releasev2.cc.avayacloud.com"       # prod release v2
   url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"
@@ -16,13 +18,23 @@ urls:
   url_wfo: !!str "wfo.a31.verintcloudservices.com"
   url_wfo_captVerifapi: !!str "/api/av/capture_verification/v1/call_segments/issues/search/csv"
   url_wfo_SearchReplayapi: !!str "/daswebapi/Query/ExecuteDynamicQuery"
+  url_wfo_token: !!str "https://wfo.a31.verintcloudservices.com/wfo/rest/core-api/auth/token"
 # CCaaS API credentials
 auth:
-  clientid : !!str "wfm"                                          # clientid
-  secret : !!str "nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd"               # secret
+  clientid : !!str "wfm"                                          # Analytics clientid
+  secret : !!str "nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd"               # Analytics secret
+  wfo_token_user: !!str "api_user@verintnew01.prodreleasev2.com"  # Verint API user
+  wfo_token_password: !!str "1_Abc_123"                           # Verint API password
 
 logs:
   log_level : !!str "DEBUG" # all capital letters required for this field
+
+requests:
+  sr_orgid : !!int 708000501    # Verint orgid
+  sr_start_time : !!str "2023-12-12T05:00:00-04:00" # search and replay start time
+  sr_end_time : !!str "2023-12-13T05:00:00-04:00"   # search and replay start time
+  sr_pageSize : !!int 2000    # results page size
+  sr_IssueFilter : !!str ""   # search  filter
 
 
 # LOG LEVELS

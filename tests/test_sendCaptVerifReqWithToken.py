@@ -36,7 +36,7 @@ current_time = time.strftime("%H_%M_%S", t)
 current = os.path.dirname(os.path.realpath(__file__))
 
 
-class CaptureVerification:
+class test_CaptureVerification:
   def __init__(self, test_read_config_file: object) -> None:
     """init the class"""
 
@@ -57,25 +57,42 @@ class CaptureVerification:
     self.session = 'null'
     self.retry = 'null'
     self.adapter = 'null'
-
+    self.csv_file = 'null'    # tracks csv file status
+    self.folderPath = './output/CaptVerif/'   # location where csv saved
+    self.zipPath = '.\output\CaptVerif' + '\CaptVerifCSV_session' + '.zip'
+    self.s = 'null'   # session tracker
+    self.session = 'null'
+    self.adapter = 'null'   # session adapter
+    self.zipExtractFolder = '.\output\CaptVerif'
+    self.csv_path = r'.\output\CaptVerif\*.csv'
     LOGGER.debug('CaptureVerification:: init finished')
     return
 
 
-  def test_getCaptVerifCSV(self, getToken):
+  def test_getCaptVerifCSV(self, test_read_config_file, getVerintToken):
     """retrieves daily capt verif csv"""
 
     ###url = 'wfo.a31.verintcloudservices.com'
     ###url_api = '/api/av/capture_verification/v1/call_segments/issues/search/csv'
-    s='null'  # requests session variable
+    # delete previous zip files, csv
+
+
+
+    for fileName in listdir(self.folderPath):
+      # Check file extension
+      if fileName.endswith('.zip') or fileName.endswith('.csv'):
+        # Remove File
+        os.remove(self.folderPath + fileName)
+
     # create an Empty DataFrame object, holds capt verif results
     ##df = pd.DataFrame()
 
     LOGGER.debug('test_getCaptVerifCSV():: started')
     ##token = 'null'
     conn = http.client.HTTPSConnection(self.URL)
-    self.token = os.environ["TOKEN"]
-    assert(token),'token not retrieved'
+    ##self.token = os.environ["TOKEN"]
+    self.token = getVerintToken
+    assert self.token, 'token not retrieved'
 
     LOGGER.debug('test_getCaptVerifCSV:: token retrieved')
     payload = json.dumps({
@@ -90,27 +107,27 @@ class CaptureVerification:
       'Verint-Time-Zone': 'ACST',
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Impact360AuthToken': token
+      'Impact360AuthToken': self.token
     }
     #conn.request("POST", "/api/av/capture_verification/v1/call_segments/issues/search/csv", payload, headers)
     #res = conn.getresponse()
 
     # create a sessions object
-    session = requests.Session()
-    assert session,'session not created'
+    self.session = requests.Session()
+    assert self.session,'session not created'
     # Set the Content-Type header to application/json for all requests in the session
     # session.headers.update({'Content-Type': 'application/json'})
 
     retry = Retry(connect=25, backoff_factor=0.5)
 
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('https://', adapter)
-    session.mount('http://', adapter)
+    self.adapter = HTTPAdapter(max_retries=retry)
+    self.session.mount('https://', self.adapter)
+    self.session.mount('http://', self.adapter)
     # Set the Content-Type header to application/json for all requests in the session
-    session.headers.update(headers)
+    self.session.headers.update(headers)
     try:
-      s=session.post('https://'+url+url_api, data=payload, timeout=25, verify=False)
-      s.raise_for_status()
+      self.s=self.session.post('https://'+self.URL+self.URL_api, data=payload, timeout=25, verify=False)
+      self.s.raise_for_status()
     except requests.exceptions.HTTPError as errh:
       print("Http Error:", errh)
     except requests.exceptions.ConnectionError as errc:
@@ -120,36 +137,39 @@ class CaptureVerification:
     except requests.exceptions.RequestException as err:
       print("OOps: Something Else", err)
 
-    assert s.status_code==200, 'session request response not 200 OK'
+    assert self.s.status_code==200, 'session request response not 200 OK'
     # access session cookies
     #print(f'session cookies: {s.cookies}')
 
     #print(f'***test_getCaptVerifCSV() resp received code: {res.code}')
-    print(f'***test_getCaptVerifCSV() session resp received code: {s.status_code}')
-    LOGGER.debug('test_getCaptVerifCSV:: response received')
+    print(f'***test_getCaptVerifCSV() session resp received code: {self.s.status_code}')
+    LOGGER.debug('test_getCaptVerifCSV:: 200 OK csv req response received, attempt write zip archive')
 
-    # delete previous zip files, csv
-
-    folderPath = './output/CaptVerif/'
-
-    for fileName in listdir(folderPath):
-      # Check file extension
-      if fileName.endswith('.zip') or fileName.endswith('.csv'):
-        # Remove File
-        os.remove(folderPath + fileName)
-
-
-    zipPath = '.\output\CaptVerif' + '\CaptVerifCSV_session' + '.zip'
-    with open(zipPath, 'wb') as zipFile:
-        zipFile.write(s.content)
+    try:
+      with open(self.zipPath, 'wb') as zipFile:
+          zipFile.write(self.s.content)
+          LOGGER.debug('test_getCaptVerifCSV:: capt verif req response zip file write file OK')
+    except:
+      LOGGER.exception('test_getCaptVerifCSV:: 200 OK csv req response received')
+    else:
+      LOGGER.debug('test_getCaptVerifCSV:: zip file created OK')
 
     # need to unzip Capt Verif csv and import to DF
     # extract the file
-    shutil.unpack_archive(zipPath, '.\output\CaptVerif')
+    try:
+      shutil.unpack_archive(self.zipPath, self.zipExtractFolder)
+    except:
+      LOGGER.exception('test_getCaptVerifCSV:: unzip exception')
+    else:
+      LOGGER.debug('test_getCaptVerifCSV:: unzip capt verif zip file success')
     # determine the zip file name
-    path = r'.\output\CaptVerif\*.csv'
-    csv_file = glob.glob(path)
+    #path = r'.\output\CaptVerif\*.csv'
+    self.csv_file = glob.glob(self.csv_path)
+    assert self.csv_file, 'csv file not found after zip'
 
     # read the csv into a df
-    df_CaptVerifDaily = pd.read_csv(csv_file[0])
+    self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0])
+    # check non zero df
+    assert not len(self.CaptVerifDaily_df) == 0
+    return self.CaptVerifDaily_df
 

@@ -6,6 +6,7 @@ import platform
 import pandas as pd
 import src.__init__     # contains sw version
 import pytest_html
+import json
 
 import yaml
 import os
@@ -49,19 +50,19 @@ def test_read_config_file():
         python_version = str(platform.python_version())
         pytest_version = str(pytest.__version__)
         testcode_version = str(src.__init__.__version__)
-        LOGGER.debug(f'conftest:: python version: {python_version}')
-        LOGGER.debug(f'conftest:: pytest version: , {pytest_version}')
-        LOGGER.debug(f'conftest:: test code version: {testcode_version}')
+        LOGGER.debug(f'conftest:: test_read_config_file() python version: {python_version}')
+        LOGGER.debug(f'conftest:: test_read_config_file() pytest version: , {pytest_version}')
+        LOGGER.debug(f'conftest:: test_read_config_file() test code version: {testcode_version}')
         LOGGER.debug('conftest:: test_read_config_file() finished')
 
     yield df_config
 
 
 @pytest.fixture(scope='function')
-
 def getCCaaSToken(test_read_config_file):
   """retrieve Analytics token"""
 
+  LOGGER.debug('conftest:: getCCaaSToken() token start')
   url = test_read_config_file['urls']['url']
   url_api_token = test_read_config_file['urls']['url_api_token']
 
@@ -69,7 +70,7 @@ def getCCaaSToken(test_read_config_file):
   secret = test_read_config_file['auth']['secret']
   s = 'null'    # requests session object
 
-  LOGGER.debug('conftest:: start getToken')
+  LOGGER.debug('conftest:: getCCaaSToken() build request')
 
   payload = {
       'grant_type': 'client_credentials',
@@ -84,7 +85,7 @@ def getCCaaSToken(test_read_config_file):
 
   # create a sessions object
   session = requests.Session()
-  assert session, 'session not created'
+  assert session, 'conftest:: getCCaaSToken() session not created'
   retry = Retry(connect=25, backoff_factor=0.5)
   adapter = HTTPAdapter(max_retries=retry)
   session.mount('https://', adapter)
@@ -92,6 +93,7 @@ def getCCaaSToken(test_read_config_file):
   session.headers.update(headers)
 
   try:
+    LOGGER.debug('conftest:: getCCaaSToken() send request')
     s = session.post(url + url_api_token, data=payload, timeout=25, verify=False)
     s.raise_for_status()
   except requests.exceptions.HTTPError as errh:
@@ -103,18 +105,61 @@ def getCCaaSToken(test_read_config_file):
   except requests.exceptions.RequestException as err:
     print("OOps: Something Else", err)
 
-  assert s.status_code == 200, 'session request response not 200 OK'
+  assert s.status_code == 200, 'getCCaaSToken() session request response not 200 OK'
 
-  LOGGER.debug('conftest:: getToken 200 OK response received')
-  print(f'*****getToken() session resp received code: {s.status_code}')
+  LOGGER.debug('conftest:: getCCaaSToken() 200 OK response received')
+  print(f'getCCaaSToken() session resp received code: {s.status_code}')
   token = s.json()['access_token']
-  print(f'retrieved token is: {token}')
+  print(f'getCCaaSToken() retrieved token is: {token}')
 
   #os.environ["TOKEN"] = json.dumps(json_response["AuthToken"]["token"])[1:-1]
 
-  LOGGER.debug('conftest:: finish getToken')
+  LOGGER.debug('conftest:: getCCaaSToken() finish ok')
 
   yield token
+
+@pytest.fixture(scope='function')
+def getVerintToken(test_read_config_file):
+  """retrieve Verint token"""
+
+  LOGGER.debug('conftest:: start getVerintToken()')
+  #url = "https://wfo.a31.verintcloudservices.com/wfo/rest/core-api/auth/token"
+  response = 'null'
+
+  url = test_read_config_file['urls']['url']
+  url_api_token = test_read_config_file['urls']['url_wfo_token']
+
+  payload = json.dumps({
+    "user": test_read_config_file['auth']['wfo_token_user'],
+    "password": test_read_config_file['auth']['wfo_token_password']
+  })
+  headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+
+  LOGGER.debug('conftest:: getVerintToken request built now attempt to send request')
+
+  try:
+    response = requests.request("POST", url_api_token, headers=headers, data=payload, timeout=25, verify=False)
+  except:
+    LOGGER.exception('conftest:: getVerintToken no response received')
+  else:
+    LOGGER.debug('conftest:: getVerintToken response received')
+    print(response.text)
+    #print("getVerintToken() token is:", {response.content})
+
+  assert response != 'null', 'conftest:: getVerintToken() token response invalid'
+
+  json_response = response.json()
+  print(f'getVerintToken token received: {json_response["AuthToken"]["token"]}')
+
+  # remove quotes at each end
+
+  os.environ["TOKEN"] = json.dumps(json_response["AuthToken"]["token"])[1:-1]
+  LOGGER.debug('conftest:: finish getVerintToken()')
+  yield os.environ["TOKEN"]
+
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
