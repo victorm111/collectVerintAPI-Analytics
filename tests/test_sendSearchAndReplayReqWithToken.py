@@ -18,10 +18,6 @@ from urllib3.util.retry import Retry
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
-
-logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger(__name__)
-
 # getting the name of the directory
 current = os.path.dirname(os.path.realpath(__file__))
 
@@ -57,8 +53,9 @@ class test_SearchReplay:
     # self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
+    self.SR_df_1 = pd.DataFrame()  # hold returned data after transform, create empty
     #self.DetailedReportDaily_df = pd.DataFrame()  # hold return data
-    self.response_dict = 'null'
+    self.response_dict = {}     # empty dictionary
     self.token = 'null'
     self.payload = {}
     self.headers = {}
@@ -73,6 +70,7 @@ class test_SearchReplay:
     self.json_output = test_read_config_file['dirs']['SR_to_json_output']
     self.csv_output = test_read_config_file['dirs']['SR_to_csv_output']
     self.csv_headers = 'null'
+    self.no_calls = 0  # number of calls retrieved
 
     LOGGER.debug('retrieveDetailReport:: init finished')
     return
@@ -135,18 +133,44 @@ class test_SearchReplay:
       print("OOps: Something Else", err)
 
     assert self.s.status_code==200, 'test_getSearchAndReplay() session request response not 200 OK'
+    self.s.raise_for_status()
 
     print(f'test_getSearchAndReplay() session resp received code: {self.s.status_code}')
     LOGGER.debug('test_getSearchAndReplay:: response received')
 
-    self.response_dict = json.loads(self.s.text)
-    self.s.raise_for_status()
-    self.SR_df = pd.json_normalize(self.response_dict)
-    self.SR_df.to_json(self.json_output)
-    self.SR_df.to_csv(self.csv_output, encoding='utf-8',index=False, header=self.response_dict.get('Sessions')[0].keys())
-    #self.csv_headers = self.response_dict.get('Sessions')[0].keys()
-    assert not len(self.SR_df) == 0, 'test_getSearchAndReplay() no SR_df returned'
-    return self.SR_df
+    try:
+      self.response_dict = json.loads(self.s.text)
+    except:
+      LOGGER.exception('test_getSearchAndReplay:: json not received ok')
+    else:
+      LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() json unpacked ok')
+      assert len(self.response_dict) != 0, 'test_getSearchAndReplay() empty json returned'
+
+      # store call data headers
+      self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
+      self.no_calls = int(len(self.response_dict.get('Sessions')[0].values()) / len(self.response_dict.get('Sessions')[0].keys()))
+      LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
+
+      # create 2d list first, will store call data
+      mylist = []
+      for calls in range(self.no_calls):
+        mylist.append(list(self.response_dict.get('Sessions')[calls].values()))
+
+      # write calls list + headers to df
+      for calls in range(self.no_calls):
+        self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
+
+      assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
+
+      try:
+        self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)
+      except:
+        LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() csv creation error')
+      else:
+        LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
+
+    LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() completed OK')
+    return self.SR_df_1
 
 
 
