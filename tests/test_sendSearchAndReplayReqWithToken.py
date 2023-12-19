@@ -49,8 +49,8 @@ class test_SearchReplay:
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
     self.URL_api = test_read_config_file['urls']['url_wfo_SearchReplayapi']
-    # self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
-    # self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
+    self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
+    self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
     self.SR_df_1 = pd.DataFrame()  # hold returned data after transform, create empty
@@ -63,8 +63,8 @@ class test_SearchReplay:
     self.retry = 'null'
     self.adapter = 'null'
     self.Payload_org_id = test_read_config_file['requests']['sr_orgid']
-    self.Payload_start_time = test_read_config_file['requests']['sr_start_time']
-    self.Payload_end_time = test_read_config_file['requests']['sr_end_time']
+    self.Payload_start_time = 'null'
+    self.Payload_end_time = 'null'
     self.Payload_issueFilter = test_read_config_file['requests']['sr_IssueFilter']
     self.Payload_pageSize = test_read_config_file['requests']['sr_pageSize']
     self.json_output = test_read_config_file['dirs']['SR_to_json_output']
@@ -146,7 +146,7 @@ class test_SearchReplay:
       LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() json unpacked ok')
       assert len(self.response_dict) != 0, 'test_getSearchAndReplay() empty json returned'
 
-      # store call data headers
+      # store call data headers from the json
       self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
       self.no_calls = int(len(self.response_dict.get('Sessions')[0].values()) / len(self.response_dict.get('Sessions')[0].keys()))
       LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')

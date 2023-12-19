@@ -31,27 +31,27 @@ current = os.path.dirname(os.path.realpath(__file__))
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-from test_AnalyticsEngDetail import test_retrieveDetailReport
+# import the classes
+from test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
 from test_sendCaptVerifReqWithToken import test_CaptureVerification
 from test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 # Init dataframes es that store retrieved datasets
 df_SR = pd.DataFrame()
 df_CaptVerificationDaily = pd.DataFrame()
-df_DetailEngInterval = pd.DataFrame()
 df_DetailEngDaily = pd.DataFrame()
 
 def test_run_all(test_read_config_file, getCCaaSToken, getVerintToken) -> None:
     """run Analytics detailed Eng Reports interval and daily """
     # create class instance
     LOGGER.debug('test_run_all:: started')
-    LOGGER.debug('test_run_all:: init class')
-    test_DetailReport = test_retrieveDetailReport(test_read_config_file)
-    LOGGER.debug('test_run_all:: test_buildRequest()')
-    test_DetailReport.test_buildRequest(getCCaaSToken)
-    LOGGER.debug('test_run_all:: test_sendRequest()')
-    df_DetailEngInterval, df_DetailEngDaily = test_DetailReport.test_sendRequest()  # retrieves both interval and daily data
-# retrieve Verint capt verif
+    LOGGER.debug('test_run_all:: init test_AnalyticsEngagementDetailReport class')
+    test_DetailReport = test_AnalyticsEngagementDetailReport(test_read_config_file)
+    LOGGER.debug('test_run_all:: test_Analytics_ED_buildRequest()')
+    test_DetailReport.test_Analytics_ED_buildRequest(getCCaaSToken)
+    LOGGER.debug('test_run_all:: test_Analytics_ED_buildRequest()')
+    df_DetailEngDaily = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves both interval and daily data
+    # retrieve Verint capt verif
     LOGGER.debug('test_run_all:: init test_CaptureVerification class')
     test_CaptVerifReport = test_CaptureVerification(test_read_config_file)
     LOGGER.debug('test_run_all:: test_CaptureVerification:: test_getCaptVerifCSV() request capt verif zip/csv results')
