@@ -47,12 +47,13 @@ class test_AnalyticsEngagementDetailReport:
 
         LOGGER.debug('test_AnalyticsEngagementDetailReport:: init start')
         self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-','')   # yesterday's date for daily report
+        self.todaydate = date.today().isoformat().replace('-', '')
         self.title = 'retrieveAnalyticsDetailedReport'
         self.author = 'VW'
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
 
-        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',end:' + self.yesterdaydate + '2359'
+        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data

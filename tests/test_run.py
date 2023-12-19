@@ -50,7 +50,7 @@ def test_run_all(test_read_config_file, getCCaaSToken, getVerintToken) -> None:
     LOGGER.debug('test_run_all:: test_Analytics_ED_buildRequest()')
     test_DetailReport.test_Analytics_ED_buildRequest(getCCaaSToken)
     LOGGER.debug('test_run_all:: test_Analytics_ED_buildRequest()')
-    df_DetailEngDaily = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves both interval and daily data
+    df_DetailEngDaily = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves daily data
     # retrieve Verint capt verif
     LOGGER.debug('test_run_all:: init test_CaptureVerification class')
     test_CaptVerifReport = test_CaptureVerification(test_read_config_file)

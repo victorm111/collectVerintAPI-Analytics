@@ -44,7 +44,8 @@ class test_SearchReplay:
     """init the class"""
 
     LOGGER.debug('retrieveDetailReport:: init start')
-    self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-', '')  # yesterday's date for daily report
+    self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
+    self.todaydate = date.today().isoformat()
     self.title = 'SearchReplay'
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
@@ -78,29 +79,25 @@ class test_SearchReplay:
   def test_getSearchAndReplay(self, getVerintToken):
     """retrieves daily search and replay"""
 
-    #url = 'wfo.a31.verintcloudservices.com'
-    #url_api = '/daswebapi/Query/ExecuteDynamicQuery'
-    #s='null'  # requests session variable
-    # create an Empty DataFrame object, holds capt verif results
+    self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    self.Payload_end_time = self.todaydate + 'T00:00:00-00:00'
 
     self.SR_df = pd.DataFrame()
     LOGGER.debug('test_getSearchAndReplay():: started')
     self.token = getVerintToken
 
-    #self.token = os.environ["TOKEN"]
     assert(self.token),'test_getSearchAndReplay token not retrieved'
     LOGGER.debug('test_getSearchAndReplay:: token retrieved, build request')
 
     self.payload = json.dumps({
-      "org_id": self.Payload_org_id,
-      "start_time": self.Payload_start_time,
-      "end_time": self.Payload_start_time,
-      "page_size": self.Payload_pageSize,
-      "issue_filter": self.Payload_issueFilter
+      #"org_id": self.Payload_org_id,
+      "beginPeriod": self.Payload_start_time,
+      "endPeriod": self.Payload_end_time,
+      #"page_size": self.Payload_pageSize,
+      #"issue_filter": self.Payload_issueFilter
     })
     self.headers = {
       'Verint-Session-ID': '42334',
-      'Verint-Time-Zone': 'ACST',
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Impact360AuthToken': self.token
