@@ -51,10 +51,10 @@ class test_AnalyticsEngagementDetailReport:
         self.author = 'VW'
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
-        self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
+
         self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',end:' + self.yesterdaydate + '2359'
         self.s = 'null'     # session request
-        self.DetailedReportInterval_df = pd.DataFrame()     # hold returned data, create empty
+
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
         self.response_dict = 'null'
         self.token = 'null'
@@ -66,7 +66,7 @@ class test_AnalyticsEngagementDetailReport:
         self.column_names = []
         self.call_data = []
         self.csv_Daily_output = test_read_config_file['dirs']['ED_daily_to_csv_output']
-        self.csv_Interval_output = test_read_config_file['dirs']['ED_interval_to_csv_output']
+
 
         LOGGER.debug('test_AnalyticsEngagementDetailReport:: init finished')
         return

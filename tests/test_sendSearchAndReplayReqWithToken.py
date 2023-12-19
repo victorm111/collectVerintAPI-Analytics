@@ -49,7 +49,7 @@ class test_SearchReplay:
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
     self.URL_api = test_read_config_file['urls']['url_wfo_SearchReplayapi']
-    self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
+    #self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
     self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
