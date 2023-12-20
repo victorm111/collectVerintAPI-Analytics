@@ -14,6 +14,7 @@ import csv
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import pytest_check as check        # soft asserts
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ class test_CaptureVerification:
     self.session = 'null'
     self.retry = 'null'
     self.adapter = 'null'
-    self.csv_file = 'null'    # tracks csv file status
+    self.csv_file = list()    # tracks csv file status
     self.folderPath = './output/CaptVerif/'   # location where csv saved
     self.zipPath = '.\output\CaptVerif' + '\CaptVerifCSV_session' + '.zip'
     self.s = 'null'   # session tracker
@@ -96,7 +97,7 @@ class test_CaptureVerification:
     conn = http.client.HTTPSConnection(self.URL)
     ##self.token = os.environ["TOKEN"]
     self.token = getVerintToken
-    assert self.token, 'token not retrieved'
+    assert self.token, 'test_getCaptVerifCSV():: token not retrieved'
 
     LOGGER.debug('test_getCaptVerifCSV:: token retrieved')
     self.payload = json.dumps({
@@ -119,7 +120,7 @@ class test_CaptureVerification:
 
     # create a sessions object
     self.session = requests.Session()
-    assert self.session,'session not created'
+    assert self.session,'test_getCaptVerifCSV():: session not created'
     # Set the Content-Type header to application/json for all requests in the session
     # session.headers.update({'Content-Type': 'application/json'})
 
@@ -142,7 +143,7 @@ class test_CaptureVerification:
     except requests.exceptions.RequestException as err:
       print("OOps: Something Else", err)
 
-    assert self.s.status_code==200, 'session request response not 200 OK'
+    assert self.s.status_code==200, 'test_getCaptVerifCSV():: session request response not 200 OK'
     # access session cookies
     #print(f'session cookies: {s.cookies}')
 
@@ -169,18 +170,27 @@ class test_CaptureVerification:
       LOGGER.debug('test_getCaptVerifCSV:: unzip capt verif zip file success')
     # determine the zip file name
     #path = r'.\output\CaptVerif\*.csv'
+
     self.csv_file = glob.glob(self.csv_path)
-    assert self.csv_file, 'test_getCaptVerifCSV::csv file not found after zip'
+    LOGGER.debug('test_getCaptVerifCSV:: check csv available after unzip')
+
+    check.not_equal(self.csv_file, [], 'test_getCaptVerifCSV::csv file not found after zip')
 
     # read the csv into a df
-
+    LOGGER.debug('test_getCaptVerifCSV:: csv found, try to open and read into df')
     # read csv headers
-    f = open(self.csv_file[0], 'r')
-    reader = csv.reader(f)
-    self.csv_headers = next(reader, None)
-    self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
+    try:
+      f = open(self.csv_file[0], 'r')
+    except:
+      LOGGER.exception('test_getCaptVerifCSV:: unzip capt verif zip file success')
+    else:
+      reader = csv.reader(f)
+      self.csv_headers = next(reader, None)
+      self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
 
     # check non zero df
-    #assert not len(self.CaptVerifDaily_df) == 0
+
+      check.equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV::df not found after unzip')
+
     return self.CaptVerifDaily_df
 

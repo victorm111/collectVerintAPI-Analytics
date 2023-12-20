@@ -8,6 +8,7 @@ import os
 import sys
 import time as time
 from datetime import date,  timedelta
+import pytest_check as check        # soft asserts
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -64,13 +65,12 @@ class test_AnalyticsEngagementDetailReport:
         self.retry = 'null'
         self.adapter = 'null'
         self.column_names = []
+        self.no_calls = 0
         self.call_data = []
         self.csv_Daily_output = test_read_config_file['dirs']['ED_daily_to_csv_output']
         self.has_next_token = False     # handling pagination
         self.nextToken = ""     # next page token
         self.token_append = ''      # includes Bearer + token
-
-
         LOGGER.debug('test_AnalyticsEngagementDetailReport:: init finished')
         return
 
@@ -95,7 +95,7 @@ class test_AnalyticsEngagementDetailReport:
 
         # create a sessions object
         self.session = requests.Session()
-        assert self.session, 'session not created'
+        assert self.session, 'test_Analytics_ED_buildRequest:: session not created'
         self.retry = Retry(connect=25, backoff_factor=0.5)
         self.adapter = HTTPAdapter(max_retries=self.retry)
         self.session.mount('https://', self.adapter)
@@ -109,16 +109,12 @@ class test_AnalyticsEngagementDetailReport:
     def test_AnalyticdED_sendRequest(self) -> object:
         """ send the request and create df"""
 
-        csv_write_daily = 'null'
-
         LOGGER.debug('test_AnalyticdED_sendRequest:: start')
         self.URL_api = self.URL_api_daily
         LOGGER.debug('test_AnalyticdED_sendRequest:: start collect daily')
 
         try:
-
             self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
-
         except requests.exceptions.HTTPError as errh:
             print("test_AnalyticdED_sendRequest Http Error:", errh)
         except requests.exceptions.ConnectionError as errc:
@@ -154,18 +150,16 @@ class test_AnalyticsEngagementDetailReport:
             # write calls list + headers to df
 
             self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
+            check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no df returned')
 
             # write the csv files
             try:
-                csv_write_daily = self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
+                self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
                                                                      header=self.column_names)
             except:
                 LOGGER.exception('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv creation error')
             else:
                 LOGGER.debug('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
 
-            #assert not len(self.DetailedReportDaily_df) == 0, 'No DetailedReportInterval_df returned'
-            #assert csv_write_daily != 'null', 'test_AnalyticdED_sendRequest daily csv not written correctly'
-
         LOGGER.debug('test_AnalyticdED_sendRequest:: finished')
-        return self.DetailedReportDaily_df, self.no_calls
+        return self.DetailedReportDaily_df, self.no_calls, self.column_names

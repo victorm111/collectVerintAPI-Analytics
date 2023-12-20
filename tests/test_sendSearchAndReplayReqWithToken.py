@@ -14,6 +14,7 @@ from datetime import date,  timedelta
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import pytest_check as check        # soft asserts
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -143,8 +144,10 @@ class test_SearchReplay:
       LOGGER.exception('test_getSearchAndReplay:: json not received ok')
     else:
       LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() json unpacked ok')
-      assert len(self.response_dict) != 0, 'test_getSearchAndReplay() empty json returned'
+      check.not_equal(len(self.response_dict), 0, 'test_getSearchAndReplay() empty json returned')
+
       self.no_calls = len(self.response_dict.get('Sessions'))
+
       if self.no_calls:
         # store call data headers from the json
         self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
@@ -160,7 +163,7 @@ class test_SearchReplay:
         for calls in range(self.no_calls):
           self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
 
-        #assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
+        check.not_equal(len(self.SR_df_1), 0, 'test_getSearchAndReplay() no df returned')
 
         try:
           self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)

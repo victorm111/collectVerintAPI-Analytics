@@ -11,6 +11,7 @@ dirs:
   SR_to_json_output: !!str './output/SR/SR_daily.json'
   SR_to_csv_output: !!str './output/SR/testSR.csv'
   ED_daily_to_csv_output: !!str './output/EngDetailedReport/testED-Daily.csv'
+  ED_column_headers: !!str './output/EngDetailedReport/testED-DailyNotReconciled.csv'
   #ED_interval_to_csv_output: !!str './output/EngDetailedReport/testED-Interval.csv'
 
 urls:
