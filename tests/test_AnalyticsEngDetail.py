@@ -29,9 +29,6 @@ sys.path.append(parent)
 today = str(date.today())
 t = time.localtime()
 current_time = time.strftime("%H_%M_%S", t)
-
-
-
 # getting the name of the directory
 current = os.path.dirname(os.path.realpath(__file__))
 
@@ -55,7 +52,7 @@ class test_AnalyticsEngagementDetailReport:
 
         self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
-        ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20230118' + '0000' + ',ending:' + self.todaydate + '0000'
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
@@ -69,17 +66,20 @@ class test_AnalyticsEngagementDetailReport:
         self.column_names = []
         self.call_data = []
         self.csv_Daily_output = test_read_config_file['dirs']['ED_daily_to_csv_output']
+        self.has_next_token = False     # handling pagination
+        self.nextToken = ""     # next page token
+        self.token_append = ''      # includes Bearer + token
 
 
         LOGGER.debug('test_AnalyticsEngagementDetailReport:: init finished')
         return
 
-    def test_Analytics_ED_buildRequest(self, getCCaaSToken) -> None:
+    def test_Analytics_ED_buildRequest(self, token) -> None:
         """build the request"""
 
         LOGGER.debug('test_Analytics_ED_buildRequest:: started')
-        self.token = getCCaaSToken
-        assert getCCaaSToken, 'token not retrieved'
+        self.token = token
+        assert self.token, 'test_Analytics_ED_buildRequest:: token not retrieved'
         token_append = 'Bearer ' + self.token        # cat Bearer to token, include space after 'Bearer '
 
         LOGGER.debug('test_buildIntervalRequest:: token retrieved and assembled')
@@ -112,16 +112,12 @@ class test_AnalyticsEngagementDetailReport:
         csv_write_daily = 'null'
 
         LOGGER.debug('test_AnalyticdED_sendRequest:: start')
+        self.URL_api = self.URL_api_daily
+        LOGGER.debug('test_AnalyticdED_sendRequest:: start collect daily')
 
         try:
-            self.URL_api = self.URL_api_daily
-            LOGGER.debug('test_AnalyticdED_sendRequest:: start collect daily')
 
             self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
-            # need handle next page
-            self.response_dict = json.loads(self.s.text)
-
-            self.s.raise_for_status()
 
         except requests.exceptions.HTTPError as errh:
             print("test_AnalyticdED_sendRequest Http Error:", errh)
@@ -134,6 +130,11 @@ class test_AnalyticsEngagementDetailReport:
 
         assert self.s.status_code == 200, 'test_AnalyticdED_sendRequest() session request response not 200 OK'
 
+        self.response_dict = json.loads(self.s.text)
+
+        self.s.raise_for_status()
+
+
         print(f'test_AnalyticdED_sendRequest session resp received code: {self.s.status_code}')
         LOGGER.debug('test_AnalyticdED_sendRequest:: response received')
 
@@ -144,6 +145,7 @@ class test_AnalyticsEngagementDetailReport:
             self.column_names.append(self.response_dict.get('columnHeaders')[name]['name'])
         # store number of calls
         self.no_calls = int(len(self.response_dict.get('records')))
+
         if self.no_calls:
             # store call data
             for calls in range(self.no_calls):
