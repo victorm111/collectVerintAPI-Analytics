@@ -53,9 +53,9 @@ class test_AnalyticsEngagementDetailReport:
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
 
-        ### self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
-        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
@@ -144,25 +144,26 @@ class test_AnalyticsEngagementDetailReport:
             self.column_names.append(self.response_dict.get('columnHeaders')[name]['name'])
         # store number of calls
         self.no_calls = int(len(self.response_dict.get('records')))
-        # store call data
-        for calls in range(self.no_calls):
-            self.call_data.append(self.response_dict.get('records')[calls])
+        if self.no_calls:
+            # store call data
+            for calls in range(self.no_calls):
+                self.call_data.append(self.response_dict.get('records')[calls])
 
-        # write calls list + headers to df
+            # write calls list + headers to df
 
-        self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
+            self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
 
-        # write the csv files
-        try:
-            csv_write_daily = self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
-                                                                 header=self.column_names)
-        except:
-            LOGGER.exception('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv creation error')
-        else:
-            LOGGER.debug('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
+            # write the csv files
+            try:
+                csv_write_daily = self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
+                                                                     header=self.column_names)
+            except:
+                LOGGER.exception('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv creation error')
+            else:
+                LOGGER.debug('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
 
-        #assert not len(self.DetailedReportDaily_df) == 0, 'No DetailedReportInterval_df returned'
-        #assert csv_write_daily != 'null', 'test_AnalyticdED_sendRequest daily csv not written correctly'
+            #assert not len(self.DetailedReportDaily_df) == 0, 'No DetailedReportInterval_df returned'
+            #assert csv_write_daily != 'null', 'test_AnalyticdED_sendRequest daily csv not written correctly'
 
         LOGGER.debug('test_AnalyticdED_sendRequest:: finished')
-        return self.DetailedReportDaily_df
+        return self.DetailedReportDaily_df, self.no_calls

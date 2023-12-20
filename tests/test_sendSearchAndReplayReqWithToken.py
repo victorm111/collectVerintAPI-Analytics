@@ -46,8 +46,8 @@ class test_SearchReplay:
     LOGGER.debug('retrieveDetailReport:: init start')
     self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
     self.todaydate = date.today().isoformat()
-    #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
-    self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
+    self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    #self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
 
     self.Payload_end_time = self.todaydate + 'T00:00:00.000Z'
     self.requestType = 'Absolute'
@@ -144,29 +144,30 @@ class test_SearchReplay:
     else:
       LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() json unpacked ok')
       assert len(self.response_dict) != 0, 'test_getSearchAndReplay() empty json returned'
-
-      # store call data headers from the json
-      self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
       self.no_calls = len(self.response_dict.get('Sessions'))
-      LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
+      if self.no_calls:
+        # store call data headers from the json
+        self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
+        self.no_calls = len(self.response_dict.get('Sessions'))
+        LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
 
-      # create 2d list first, will store call data
-      mylist = []
-      for calls in range(self.no_calls):
-        mylist.append(list(self.response_dict.get('Sessions')[calls].values()))
+        # create 2d list first, will store call data
+        mylist = []
+        for calls in range(self.no_calls):
+          mylist.append(list(self.response_dict.get('Sessions')[calls].values()))
 
-      # write calls list + headers to df
-      for calls in range(self.no_calls):
-        self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
+        # write calls list + headers to df
+        for calls in range(self.no_calls):
+          self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
 
-      #assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
+        #assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
 
-      try:
-        self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)
-      except:
-        LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() csv creation error')
-      else:
-        LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
+        try:
+          self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)
+        except:
+          LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() csv creation error')
+        else:
+          LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
 
     LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() completed OK')
     return self.SR_df_1

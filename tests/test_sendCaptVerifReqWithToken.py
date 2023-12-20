@@ -42,10 +42,9 @@ class test_CaptureVerification:
 
     LOGGER.debug('CaptureVerification:: init start')
     self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
-    #self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
     self.todaydate = date.today().isoformat()
-    #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
-    self.Payload_start_time = "2023-12-18T00:00:00-00:00"   # "start_time": "2023-12-08T00:00:00-00:00",
+    self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    #self.Payload_start_time = "2023-12-18T00:00:00-00:00"   # "start_time": "2023-12-08T00:00:00-00:00",
     self.Payload_end_time = self.todaydate + 'T00:00:00-00:00'
     self.issue_filter = {}
     self.page_size = 2000
@@ -171,7 +170,7 @@ class test_CaptureVerification:
     # determine the zip file name
     #path = r'.\output\CaptVerif\*.csv'
     self.csv_file = glob.glob(self.csv_path)
-    assert self.csv_file, 'csv file not found after zip'
+    assert self.csv_file, 'test_getCaptVerifCSV::csv file not found after zip'
 
     # read the csv into a df
 
@@ -180,7 +179,6 @@ class test_CaptureVerification:
     reader = csv.reader(f)
     self.csv_headers = next(reader, None)
     self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
-
 
     # check non zero df
     #assert not len(self.CaptVerifDaily_df) == 0
