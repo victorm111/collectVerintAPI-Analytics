@@ -10,7 +10,7 @@ import shutil
 import time as time
 from datetime import date,  timedelta
 import sys
-
+import csv
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -74,6 +74,7 @@ class test_CaptureVerification:
     self.adapter = 'null'   # session adapter
     self.zipExtractFolder = '.\output\CaptVerif'
     self.csv_path = r'.\output\CaptVerif\*.csv'
+    self.csv_headers = 'null'
     LOGGER.debug('CaptureVerification:: init finished')
     return
 
@@ -173,7 +174,14 @@ class test_CaptureVerification:
     assert self.csv_file, 'csv file not found after zip'
 
     # read the csv into a df
-    self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0])
+
+    # read csv headers
+    f = open(self.csv_file[0], 'r')
+    reader = csv.reader(f)
+    self.csv_headers = next(reader, None)
+    self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
+
+
     # check non zero df
     #assert not len(self.CaptVerifDaily_df) == 0
     return self.CaptVerifDaily_df
