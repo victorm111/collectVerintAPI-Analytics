@@ -51,9 +51,9 @@ class test_AnalyticsEngagementDetailReport:
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
 
-        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+        ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
-        ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20230118' + '0000' + ',ending:' + self.todaydate + '0000'
+        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data

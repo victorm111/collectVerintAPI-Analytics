@@ -47,8 +47,8 @@ class test_SearchReplay:
     LOGGER.debug('retrieveDetailReport:: init start')
     self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
     self.todaydate = date.today().isoformat()
-    self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
-    #self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
+    #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
 
     self.Payload_end_time = self.todaydate + 'T00:00:00.000Z'
     self.requestType = 'Absolute'

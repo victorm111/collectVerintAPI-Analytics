@@ -118,8 +118,8 @@ class test_ClassCollectEngID():
                 else:
                     LOGGER.debug('test_compare_df:: test_getSearchAndReplay() daily csv written ok')
 
-            with check:
-                assert len(self.df_DetailEngDaily_sorted_NoteRecorded) == 0, 'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings'
+
+            check.equal(len(self.df_DetailEngDaily_sorted_NoteRecorded), 0, 'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
 
         else:
             LOGGER.debug(f'test_collectDF:: test_compare_df:: no calls returned from Analytics ED, none to compare')
