@@ -14,7 +14,7 @@ import pytest
 from dotenv import load_dotenv
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 load_dotenv()  # take environment variables from .env.
@@ -50,10 +50,10 @@ def test_read_config_file():
         python_version = str(platform.python_version())
         pytest_version = str(pytest.__version__)
         testcode_version = str(src.__init__.__version__)
-        LOGGER.debug(f'conftest:: test_read_config_file() python version: {python_version}')
-        LOGGER.debug(f'conftest:: test_read_config_file() pytest version: , {pytest_version}')
-        LOGGER.debug(f'conftest:: test_read_config_file() test code version: {testcode_version}')
-        LOGGER.debug('conftest:: test_read_config_file() finished')
+        LOGGER.info(f'conftest:: test_read_config_file() python version: {python_version}')
+        LOGGER.info(f'conftest:: test_read_config_file() pytest version: , {pytest_version}')
+        LOGGER.info(f'conftest:: test_read_config_file() test code version: {testcode_version}')
+        LOGGER.info('conftest:: test_read_config_file() finished')
 
     yield df_config
 

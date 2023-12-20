@@ -16,7 +16,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import pytest_check as check        # soft asserts
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 # getting the name of the directory
@@ -61,7 +61,6 @@ class test_SearchReplay:
     self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
-    self.SR_df_1 = pd.DataFrame()  # hold returned data after transform, create empty
     #self.DetailedReportDaily_df = pd.DataFrame()  # hold return data
     self.response_dict = {}     # empty dictionary
     self.token = 'null'
@@ -70,10 +69,10 @@ class test_SearchReplay:
     self.session = 'null'
     self.retry = 'null'
     self.adapter = 'null'
-    self.Payload_org_id = test_read_config_file['requests']['sr_orgid']
+    #self.Payload_org_id = test_read_config_file['requests']['sr_orgid']
 
-    self.Payload_issueFilter = test_read_config_file['requests']['sr_IssueFilter']
-    self.Payload_pageSize = test_read_config_file['requests']['sr_pageSize']
+    #self.Payload_issueFilter = test_read_config_file['requests']['sr_IssueFilter']
+    #self.Payload_pageSize = test_read_config_file['requests']['sr_pageSize']
     self.json_output = test_read_config_file['dirs']['SR_to_json_output']
     self.csv_output = test_read_config_file['dirs']['SR_to_csv_output']
     self.csv_headers = 'null'
@@ -86,7 +85,7 @@ class test_SearchReplay:
     """retrieves daily search and replay"""
 
     self.SR_df = pd.DataFrame()
-    LOGGER.debug('test_getSearchAndReplay():: started')
+    LOGGER.info('test_getSearchAndReplay():: started')
     self.token = getVerintToken
 
     assert(self.token),'test_getSearchAndReplay token not retrieved'
@@ -147,12 +146,13 @@ class test_SearchReplay:
       check.not_equal(len(self.response_dict), 0, 'test_getSearchAndReplay() empty json returned')
 
       self.no_calls = len(self.response_dict.get('Sessions'))
+      LOGGER.info(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
 
       if self.no_calls:
+
+        LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() calls retrieved, start package to csv:')
         # store call data headers from the json
         self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
-        self.no_calls = len(self.response_dict.get('Sessions'))
-        LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
 
         # create 2d list first, will store call data
         mylist = []
@@ -161,19 +161,23 @@ class test_SearchReplay:
 
         # write calls list + headers to df
         for calls in range(self.no_calls):
-          self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
+          self.SR_df = pd.DataFrame(mylist, columns=self.csv_headers)
 
-        check.not_equal(len(self.SR_df_1), 0, 'test_getSearchAndReplay() no df returned')
+        check.not_equal(len(self.SR_df), 0, 'test_getSearchAndReplay() ERROR no calls df returned')
 
         try:
-          self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)
+          self.SR_df.to_csv(self.csv_output, index=False, header=self.csv_headers)
         except:
           LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() csv creation error')
         else:
-          LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
+          LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
 
-    LOGGER.debug('test_getSearchAndReplay:: test_getSearchAndReplay() completed OK')
-    return self.SR_df_1
+
+      else:
+        LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() no calls retrieved, finish up')
+
+    LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() completed OK')
+    return self.SR_df
 
 
 

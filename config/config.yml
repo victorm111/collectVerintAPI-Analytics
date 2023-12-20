@@ -33,12 +33,7 @@ auth:
 logs:
   log_level : !!str "DEBUG" # all capital letters required for this field
 
-requests:
-  sr_orgid : !!int 708000501    # Verint orgid
-  sr_start_time : !!str "2023-12-05T05:00:00-04:00" # search and replay start time
-  sr_end_time : !!str "2023-12-13T05:00:00-04:00"   # search and replay start time
-  sr_pageSize : !!int 2000    # results page size
-  sr_IssueFilter : !!str ""   # search  filter
+
 
 
 # LOG LEVELS

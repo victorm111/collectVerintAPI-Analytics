@@ -14,7 +14,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 # getting the name of the directory
@@ -43,7 +43,7 @@ class test_AnalyticsEngagementDetailReport:
     def __init__(self, test_read_config_file: object) -> None:
         """init the class"""
 
-        LOGGER.debug('test_AnalyticsEngagementDetailReport:: init start')
+        LOGGER.info('test_AnalyticsEngagementDetailReport:: init start')
         self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-','')   # yesterday's date for daily report
         self.todaydate = date.today().isoformat().replace('-', '')
         self.title = 'retrieveAnalyticsDetailedReport'
@@ -77,7 +77,7 @@ class test_AnalyticsEngagementDetailReport:
     def test_Analytics_ED_buildRequest(self, token) -> None:
         """build the request"""
 
-        LOGGER.debug('test_Analytics_ED_buildRequest:: started')
+        LOGGER.info('test_Analytics_ED_buildRequest:: started')
         self.token = token
         assert self.token, 'test_Analytics_ED_buildRequest:: token not retrieved'
         token_append = 'Bearer ' + self.token        # cat Bearer to token, include space after 'Bearer '
@@ -91,7 +91,7 @@ class test_AnalyticsEngagementDetailReport:
             'User-Agent': 'Avaya-API-Analytics'
         }
 
-        print('test_Analytics_ED_buildRequest :: dump headers: {session.headers}')
+        #print('test_Analytics_ED_buildRequest :: dump headers: {session.headers}')
 
         # create a sessions object
         self.session = requests.Session()
@@ -103,15 +103,14 @@ class test_AnalyticsEngagementDetailReport:
         # Set the Content-Type header to application/json for all requests in the session
         self.session.headers.update(self.headers)
         # print(f'dump headers: {self.session.headers}')
-        LOGGER.debug('test_Analytics_ED_buildRequest:: finished')
+        LOGGER.info('test_Analytics_ED_buildRequest:: finished')
         return
 
     def test_AnalyticdED_sendRequest(self) -> object:
         """ send the request and create df"""
 
-        LOGGER.debug('test_AnalyticdED_sendRequest:: start')
+        LOGGER.info('test_AnalyticdED_sendRequest:: start')
         self.URL_api = self.URL_api_daily
-        LOGGER.debug('test_AnalyticdED_sendRequest:: start collect daily')
 
         try:
             self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
@@ -127,12 +126,10 @@ class test_AnalyticsEngagementDetailReport:
         assert self.s.status_code == 200, 'test_AnalyticdED_sendRequest() session request response not 200 OK'
 
         self.response_dict = json.loads(self.s.text)
-
         self.s.raise_for_status()
 
-
-        print(f'test_AnalyticdED_sendRequest session resp received code: {self.s.status_code}')
-        LOGGER.debug('test_AnalyticdED_sendRequest:: response received')
+        # print(f'test_AnalyticdED_sendRequest session resp received code: {self.s.status_code}')
+        LOGGER.info(f'test_AnalyticdED_sendRequest:: response received: {self.s.status_code}')
 
         # pull column names and data into lists
 
@@ -141,6 +138,7 @@ class test_AnalyticsEngagementDetailReport:
             self.column_names.append(self.response_dict.get('columnHeaders')[name]['name'])
         # store number of calls
         self.no_calls = int(len(self.response_dict.get('records')))
+        LOGGER.info(f'test_AnalyticdED_sendRequest:: calls found: {len(self.response_dict.get('records'))}')
 
         if self.no_calls:
             # store call data
@@ -151,7 +149,7 @@ class test_AnalyticsEngagementDetailReport:
 
             self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
             check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no df returned')
-
+            LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() df created OK')
             # write the csv files
             try:
                 self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
@@ -159,7 +157,10 @@ class test_AnalyticsEngagementDetailReport:
             except:
                 LOGGER.exception('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv creation error')
             else:
-                LOGGER.debug('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
+                LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
 
-        LOGGER.debug('test_AnalyticdED_sendRequest:: finished')
+        else:
+            LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no calls found')
+
+        LOGGER.info('test_AnalyticdED_sendRequest:: routines finished')
         return self.DetailedReportDaily_df, self.no_calls, self.column_names

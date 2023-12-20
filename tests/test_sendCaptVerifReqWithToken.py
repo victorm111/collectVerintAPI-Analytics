@@ -16,7 +16,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import pytest_check as check        # soft asserts
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 # getting the name of the directory
@@ -58,7 +58,7 @@ class test_CaptureVerification:
     #self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     self.s = 'null'  # session request
     #self.DetailedReportInterval_df = pd.DataFrame()  # hold returned data, create empty
-    self.CaptVerifDaily_df = pd.DataFrame()  # hold return data
+    self.CaptVerifDaily_df = pd.DataFrame()  # hold return data, zero it initially
     self.response_dict = 'null'
     self.token = 'null'
     self.payload = {}
@@ -92,7 +92,7 @@ class test_CaptureVerification:
     # create an Empty DataFrame object, holds capt verif results
     ##df = pd.DataFrame()
 
-    LOGGER.debug('test_getCaptVerifCSV():: started')
+    LOGGER.info('test_getCaptVerifCSV():: started')
     ##token = 'null'
     conn = http.client.HTTPSConnection(self.URL)
     ##self.token = os.environ["TOKEN"]
@@ -120,7 +120,7 @@ class test_CaptureVerification:
 
     # create a sessions object
     self.session = requests.Session()
-    assert self.session,'test_getCaptVerifCSV():: session not created'
+    assert self.session,'test_getCaptVerifCSV():: error session not created'
     # Set the Content-Type header to application/json for all requests in the session
     # session.headers.update({'Content-Type': 'application/json'})
 
@@ -148,7 +148,7 @@ class test_CaptureVerification:
     #print(f'session cookies: {s.cookies}')
 
     #print(f'***test_getCaptVerifCSV() resp received code: {res.code}')
-    print(f'***test_getCaptVerifCSV() session resp received code: {self.s.status_code}')
+    #print(f'***test_getCaptVerifCSV() session resp received code: {self.s.status_code}')
     LOGGER.debug('test_getCaptVerifCSV:: 200 OK csv req response received, attempt write zip archive')
 
     try:
@@ -158,7 +158,7 @@ class test_CaptureVerification:
     except:
       LOGGER.exception('test_getCaptVerifCSV:: 200 OK csv req response received')
     else:
-      LOGGER.debug('test_getCaptVerifCSV:: zip file created OK')
+      LOGGER.info('test_getCaptVerifCSV:: zip file created OK')
 
     # need to unzip Capt Verif csv and import to DF
     # extract the file
@@ -167,30 +167,32 @@ class test_CaptureVerification:
     except:
       LOGGER.exception('test_getCaptVerifCSV:: unzip exception')
     else:
-      LOGGER.debug('test_getCaptVerifCSV:: unzip capt verif zip file success')
+      LOGGER.info('test_getCaptVerifCSV:: unzip capt verif zip file success')
     # determine the zip file name
     #path = r'.\output\CaptVerif\*.csv'
 
     self.csv_file = glob.glob(self.csv_path)
     LOGGER.debug('test_getCaptVerifCSV:: check csv available after unzip')
 
-    check.not_equal(self.csv_file, [], 'test_getCaptVerifCSV::csv file not found after zip')
+    check.not_equal(self.csv_file, [], 'test_getCaptVerifCSV:: errormcsv file not found after unzip')
 
     # read the csv into a df
-    LOGGER.debug('test_getCaptVerifCSV:: csv found, try to open and read into df')
+    LOGGER.debug('test_getCaptVerifCSV:: csv found, try to open csv and read into df')
     # read csv headers
     try:
       f = open(self.csv_file[0], 'r')
     except:
-      LOGGER.exception('test_getCaptVerifCSV:: unzip capt verif zip file success')
+      LOGGER.exception('test_getCaptVerifCSV:: unzip capt verif zip file failed')
     else:
       reader = csv.reader(f)
+      LOGGER.info('test_getCaptVerifCSV:: unzip capt verif csv read OK')
       self.csv_headers = next(reader, None)
       self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
-
+      LOGGER.info(f'test_getCaptVerifCSV:: capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)}')
       # check non zero df
 
       check.not_equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV::df zero size after csv read')
+      LOGGER.info('test_getCaptVerifCSV:: capt verif df read OK')
 
     return self.CaptVerifDaily_df
 
