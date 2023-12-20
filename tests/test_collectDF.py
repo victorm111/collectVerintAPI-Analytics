@@ -132,6 +132,7 @@ class test_ClassCollectEngID():
                     if len(self.df_CaptVerificationDaily_sorted_mismatch):
                         LOGGER.error(
                             f'test_compare_df:: test_getSearchAndReplay() ERROR numner of calls reported in Analytics but not in Verint S&R and also flagged in Capt Verif: {len(self.df_CaptVerificationDaily_sorted_mismatch)}')
+
             else:
                 LOGGER.info('test_compare_df:: test_getSearchAndReplay() no call recording mismatch')
 
