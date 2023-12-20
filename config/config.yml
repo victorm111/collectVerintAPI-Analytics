@@ -5,6 +5,7 @@
 # set working dir below to be same as this
 # Version label
 
+
 dirs:
   working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories
   SR_to_json_output: !!str './output/SR/SR_daily.json'

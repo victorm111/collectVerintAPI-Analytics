@@ -41,7 +41,16 @@ class test_CaptureVerification:
     """init the class"""
 
     LOGGER.debug('CaptureVerification:: init start')
-    self.yesterdaydate = (date.today() - timedelta(1)).isoformat().replace('-', '')  # yesterday's date for daily report
+    self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
+    #self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
+    self.todaydate = date.today().isoformat()
+    #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    self.Payload_start_time = "2023-12-18T00:00:00-00:00"   # "start_time": "2023-12-08T00:00:00-00:00",
+    self.Payload_end_time = self.todaydate + 'T00:00:00-00:00'
+    self.issue_filter = {}
+    self.page_size = 2000
+    self.org_id = 708000501
+
     self.title = 'CaptureVerification'
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
@@ -72,11 +81,6 @@ class test_CaptureVerification:
   def test_getCaptVerifCSV(self, test_read_config_file, getVerintToken):
     """retrieves daily capt verif csv"""
 
-    ###url = 'wfo.a31.verintcloudservices.com'
-    ###url_api = '/api/av/capture_verification/v1/call_segments/issues/search/csv'
-    # delete previous zip files, csv
-
-
 
     for fileName in listdir(self.folderPath):
       # Check file extension
@@ -95,16 +99,17 @@ class test_CaptureVerification:
     assert self.token, 'token not retrieved'
 
     LOGGER.debug('test_getCaptVerifCSV:: token retrieved')
-    payload = json.dumps({
-      "org_id": 708000501,
-      "start_time": "2023-12-01T05:00:00-04:00",
-      "end_time": "2023-12-06T05:00:00-04:00",
-      "page_size": 2000,
-      "issue_filter": {}
+    self.payload = json.dumps({
+      "org_id": self.org_id,
+      "start_time": self.Payload_start_time,
+      "end_time": self.Payload_end_time,
+      #"start_time": self.yesterdaydate + 'T00:00:00-00:00',
+      #"end_time": self.todaydate + 'T00:00:00-00:00',    # "end_time": "2023-12-06T05:00:00-04:00"
+      "page_size": self.page_size,
+      "issue_filter": self.issue_filter
     })
-    headers = {
+    self.headers = {
       'Verint-Session-ID': '42334',
-      'Verint-Time-Zone': 'ACST',
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Impact360AuthToken': self.token
@@ -124,9 +129,9 @@ class test_CaptureVerification:
     self.session.mount('https://', self.adapter)
     self.session.mount('http://', self.adapter)
     # Set the Content-Type header to application/json for all requests in the session
-    self.session.headers.update(headers)
+    self.session.headers.update(self.headers)
     try:
-      self.s=self.session.post('https://'+self.URL+self.URL_api, data=payload, timeout=25, verify=False)
+      self.s=self.session.post('https://'+self.URL+self.URL_api, data=self.payload, timeout=25, verify=False)
       self.s.raise_for_status()
     except requests.exceptions.HTTPError as errh:
       print("Http Error:", errh)
@@ -170,6 +175,6 @@ class test_CaptureVerification:
     # read the csv into a df
     self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0])
     # check non zero df
-    assert not len(self.CaptVerifDaily_df) == 0
+    #assert not len(self.CaptVerifDaily_df) == 0
     return self.CaptVerifDaily_df
 

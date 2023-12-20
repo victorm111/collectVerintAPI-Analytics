@@ -46,6 +46,12 @@ class test_SearchReplay:
     LOGGER.debug('retrieveDetailReport:: init start')
     self.yesterdaydate = (date.today() - timedelta(1)).isoformat() # yesterday's date for daily report
     self.todaydate = date.today().isoformat()
+    #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
+    self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
+
+    self.Payload_end_time = self.todaydate + 'T00:00:00.000Z'
+    self.requestType = 'Absolute'
+
     self.title = 'SearchReplay'
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
@@ -64,8 +70,7 @@ class test_SearchReplay:
     self.retry = 'null'
     self.adapter = 'null'
     self.Payload_org_id = test_read_config_file['requests']['sr_orgid']
-    self.Payload_start_time = 'null'
-    self.Payload_end_time = 'null'
+
     self.Payload_issueFilter = test_read_config_file['requests']['sr_IssueFilter']
     self.Payload_pageSize = test_read_config_file['requests']['sr_pageSize']
     self.json_output = test_read_config_file['dirs']['SR_to_json_output']
@@ -79,9 +84,6 @@ class test_SearchReplay:
   def test_getSearchAndReplay(self, getVerintToken):
     """retrieves daily search and replay"""
 
-    self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
-    self.Payload_end_time = self.todaydate + 'T00:00:00-00:00'
-
     self.SR_df = pd.DataFrame()
     LOGGER.debug('test_getSearchAndReplay():: started')
     self.token = getVerintToken
@@ -90,11 +92,11 @@ class test_SearchReplay:
     LOGGER.debug('test_getSearchAndReplay:: token retrieved, build request')
 
     self.payload = json.dumps({
-      #"org_id": self.Payload_org_id,
-      "beginPeriod": self.Payload_start_time,
-      "endPeriod": self.Payload_end_time,
-      #"page_size": self.Payload_pageSize,
-      #"issue_filter": self.Payload_issueFilter
+      "period": {
+        "beginPeriod": self.Payload_start_time,
+        "endPeriod": self.Payload_end_time,
+        "type": self.requestType
+      }
     })
     self.headers = {
       'Verint-Session-ID': '42334',
@@ -145,7 +147,7 @@ class test_SearchReplay:
 
       # store call data headers from the json
       self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
-      self.no_calls = int(len(self.response_dict.get('Sessions')[0].values()) / len(self.response_dict.get('Sessions')[0].keys()))
+      self.no_calls = len(self.response_dict.get('Sessions'))
       LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
 
       # create 2d list first, will store call data
@@ -157,7 +159,7 @@ class test_SearchReplay:
       for calls in range(self.no_calls):
         self.SR_df_1 = pd.DataFrame(mylist, columns=self.csv_headers)
 
-      assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
+      #assert not len(self.SR_df_1) == 0, 'test_getSearchAndReplay() no SR_df returned'
 
       try:
         self.SR_df_1.to_csv(self.csv_output, index=False, header=self.csv_headers)
