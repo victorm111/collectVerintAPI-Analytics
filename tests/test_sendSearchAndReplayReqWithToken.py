@@ -119,6 +119,9 @@ class test_SearchReplay:
     # Set the Content-Type header to application/json for all requests in the session
     self.session.headers.update(self.headers)
 
+    LOGGER.info(f'test_getSearchAndReplay:: request start: {self.Payload_start_time}')
+    LOGGER.info(f'test_getSearchAndReplay:: request start: {self.Payload_end_time}')
+
     try:
       self.s=self.session.post('https://'+self.URL+self.URL_api, data=self.payload, timeout=25, verify=False)
       self.s.raise_for_status()
@@ -146,7 +149,7 @@ class test_SearchReplay:
       check.not_equal(len(self.response_dict), 0, 'test_getSearchAndReplay() empty json returned')
 
       self.no_calls = len(self.response_dict.get('Sessions'))
-      LOGGER.info(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls:, {self.no_calls}')
+      LOGGER.info(f'test_getSearchAndReplay:: test_getSearchAndReplay() number of calls returned: {self.no_calls}')
 
       if self.no_calls:
 

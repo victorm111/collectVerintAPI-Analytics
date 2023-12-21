@@ -1,5 +1,6 @@
 import http.client
 import glob
+from rich.logging import RichHandler
 
 import json
 import logging
@@ -146,6 +147,8 @@ class test_CaptureVerification:
     assert self.s.status_code==200, 'test_getCaptVerifCSV():: session request response not 200 OK'
     # access session cookies
     #print(f'session cookies: {s.cookies}')
+    LOGGER.info(f'test_getCaptVerifCSV:: request start {self.Payload_start_time}')
+    LOGGER.info(f'test_getCaptVerifCSV:: request start {self.Payload_end_time}')
 
     #print(f'***test_getCaptVerifCSV() resp received code: {res.code}')
     #print(f'***test_getCaptVerifCSV() session resp received code: {self.s.status_code}')

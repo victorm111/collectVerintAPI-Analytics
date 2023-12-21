@@ -6,10 +6,12 @@ import os
 import sys
 import time as time
 from datetime import date
+from rich.logging import RichHandler
 import pytest_check as check        # soft asserts
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
 LOGGER = logging.getLogger(__name__)
+#LOGGER = logging.getLogger("rich")
 
 # getting the name of the directory
 current = os.path.dirname(os.path.realpath(__file__))

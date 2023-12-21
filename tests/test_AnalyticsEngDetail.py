@@ -54,6 +54,9 @@ class test_AnalyticsEngagementDetailReport:
         ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
         self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        self.interval_req = '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        #self.interval_req = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
@@ -111,7 +114,7 @@ class test_AnalyticsEngagementDetailReport:
 
         LOGGER.info('test_AnalyticdED_sendRequest:: start')
         self.URL_api = self.URL_api_daily
-
+        LOGGER.info(f'test_AnalyticdED_sendRequest:: request start: {self.interval_req}')
         try:
             self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
         except requests.exceptions.HTTPError as errh:

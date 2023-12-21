@@ -1,6 +1,8 @@
 import pytest
 import logging
 import pandas as pd
+from rich.logging import RichHandler
+
 import os
 import os
 import sys
@@ -9,7 +11,7 @@ from datetime import date
 import pytest_check as check        # soft asserts
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
 LOGGER = logging.getLogger(__name__)
 
 # getting the name of the directory
@@ -113,7 +115,7 @@ class test_ClassCollectEngID():
             if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
 
                 LOGGER.error(
-                    f'test_compare_df:: test_getSearchAndReplay() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} calls reported in Analytics not in Verint S&R')
+                    f'test_compare_df:: test_getSearchAndReplay() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics not in Verint S&R ********')
                 LOGGER.debug(
                     'test_compare_df:: test_getSearchAndReplay() attempt dump ERROR calls to csv ')
 
@@ -126,22 +128,20 @@ class test_ClassCollectEngID():
                 else:
                     LOGGER.error('test_compare_df:: test_getSearchAndReplay() call mismatch csv written ok')
 
-                    LOGGER.error('test_compare_df:: test_getSearchAndReplay() call mismatch, check if mismatch calls in capt verif df')
-                    self.df_CaptVerificationDaily_sorted_mismatch = self.df_CaptVerificationDaily_sorted[
-                        ~self.df_CaptVerificationDaily_sorted['Start time'].isin(self.dfSR_CallStarts)]
-                    if len(self.df_CaptVerificationDaily_sorted_mismatch):
-                        LOGGER.error(
-                            f'test_compare_df:: test_getSearchAndReplay() ERROR numner of calls reported in Analytics but not in Verint S&R and also flagged in Capt Verif: {len(self.df_CaptVerificationDaily_sorted_mismatch)}')
+                    #LOGGER.error('test_compare_df:: test_getSearchAndReplay() call mismatch, check if mismatch calls in capt verif df')
+                    #self.df_CaptVerificationDaily_sorted_mismatch = self.df_CaptVerificationDaily_sorted[
+                    #    ~self.df_CaptVerificationDaily_sorted['Start time'].isin(self.dfSR_CallStarts)]
+                    #if len(self.df_CaptVerificationDaily_sorted_mismatch):
+                     #   LOGGER.error(
+                      #      f'test_compare_df:: test_getSearchAndReplay() ERROR numner of calls reported in Analytics but not in Verint S&R and also flagged in Capt Verif: {len(self.df_CaptVerificationDaily_sorted_mismatch)}')
 
             else:
-                LOGGER.info('test_compare_df:: test_getSearchAndReplay() no call recording mismatch')
+                LOGGER.info('********** test_compare_df:: test_getSearchAndReplay() no call recording mismatch **********')
 
         else:
-            LOGGER.info(f'test_collectDF:: test_compare_df:: no calls returned from Analytics ED, none to compare')
+            LOGGER.info(f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, none to compare *********')
             check.equal(len(self.df_DetailEngDaily_sorted_NotRecorded), 0,
                 'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
-
-
 
         LOGGER.info(f'test_collectDF:: test_compare_df:: finished')
         return
