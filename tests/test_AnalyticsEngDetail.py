@@ -53,8 +53,10 @@ class test_AnalyticsEngagementDetailReport:
 
         ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
-        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
-        self.interval_req = '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        self.interval_dates = '20230118' + '0000' + ',ending:' + self.todaydate + '0000'
+        # self.interval_dates = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+        self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.interval_dates
+
         #self.interval_req = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
 
         self.s = 'null'     # session request
@@ -71,9 +73,12 @@ class test_AnalyticsEngagementDetailReport:
         self.no_calls = 0
         self.call_data = []
         self.csv_Daily_output = test_read_config_file['dirs']['ED_daily_to_csv_output']
-        self.has_next_token = False     # handling pagination
-        self.nextToken = ""     # next page token
+
         self.token_append = ''      # includes Bearer + token
+
+        self.num_pages = 0      # tracks multi page response
+        self.nextPageToken = '' # next page token, will be blank of no next page
+
         LOGGER.debug('test_AnalyticsEngagementDetailReport:: init finished')
         return
 
@@ -110,12 +115,13 @@ class test_AnalyticsEngagementDetailReport:
         return
 
     def test_AnalyticdED_sendRequest(self) -> object:
-        """ send the request and create df"""
+        """ send the request and create df from response"""
 
         LOGGER.info('test_AnalyticdED_sendRequest:: start')
         self.URL_api = self.URL_api_daily
-        LOGGER.info(f'test_AnalyticdED_sendRequest:: request start: {self.interval_req}')
+        LOGGER.info(f'test_AnalyticdED_sendRequest:: request start: {self.interval_dates}')
         try:
+            # get page (may be first of many)
             self.s = self.session.get(self.URL + self.URL_api,  timeout=25, verify=False)
         except requests.exceptions.HTTPError as errh:
             print("test_AnalyticdED_sendRequest Http Error:", errh)
@@ -125,16 +131,12 @@ class test_AnalyticsEngagementDetailReport:
             print("test_AnalyticdED_sendRequest Timeout Error:", errt)
         except requests.exceptions.RequestException as err:
             print("test_AnalyticdED_sendRequest OOps: Something Else", err)
-
-        assert self.s.status_code == 200, 'test_AnalyticdED_sendRequest() session request response not 200 OK'
-
-        self.response_dict = json.loads(self.s.text)
-        self.s.raise_for_status()
-
-        # print(f'test_AnalyticdED_sendRequest session resp received code: {self.s.status_code}')
-        LOGGER.info(f'test_AnalyticdED_sendRequest:: response received: {self.s.status_code}')
-
-        # pull column names and data into lists
+        else:
+            assert self.s.status_code == 200, 'test_AnalyticdED_sendRequest() session request response not 200 OK'
+            LOGGER.info(f'test_AnalyticdED_sendRequest:: response received: {self.s.status_code}')
+            # load json from response
+            self.response_dict = json.loads(self.s.text)
+            self.s.raise_for_status()
 
         # col names first
         for name in range(len(self.response_dict.get('columnHeaders'))):
