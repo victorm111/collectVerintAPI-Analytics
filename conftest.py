@@ -7,7 +7,6 @@ import pandas as pd
 import src.__init__     # contains sw version
 import pytest_html
 import json
-from rich.logging import RichHandler
 
 import yaml
 import os

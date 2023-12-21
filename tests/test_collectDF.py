@@ -1,7 +1,6 @@
 import pytest
 import logging
 import pandas as pd
-from rich.logging import RichHandler
 
 import os
 import os
@@ -11,7 +10,7 @@ from datetime import date
 import pytest_check as check        # soft asserts
 
 
-logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
+logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 # getting the name of the directory
@@ -57,6 +56,7 @@ class test_ClassCollectEngID():
         self.ED_column_headers = list()     # Analytics ED column headers returned from API call
 
         self.csv_DailyMissing_output = test_read_config_file['dirs']['ED_column_headers']
+        self.Issues_found = 'null'      # tests if Capt Verif issues returned
 
     def test_collect_df(self, test_read_config_file, getCCaaSToken, getVerintToken) -> any:
         """run Analytics detailed Eng , Verint Capt Verif + S&R API, collect df"""
@@ -82,8 +82,8 @@ class test_ClassCollectEngID():
             'test_collect_df:: test_CaptureVerification:: test_getCaptVerifCSV() request capt verif zip/csv results')
         self.df_CaptVerificationDaily = test_CaptVerifReport.test_getCaptVerifCSV(test_read_config_file, getVerintToken)
         LOGGER.debug(
-            'test_collect_df:: test_getCaptVerifCSV() capt verif zip/csv results finished OK')
-
+            'test_collect_df:: test_getCaptVerifCSV() capt verif zip/csv results finished, check for call issues')
+        LOGGER.debug('test_collect_df:: init test_CaptureVerification class')
         LOGGER.debug(f'test_collect_df:: finished collecting Analytics and Verint API data, number of calls returned from Analytics Engagement Detail Report API: {self.number_calls}')
 
         return

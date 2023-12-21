@@ -1,6 +1,5 @@
 import http.client
 import glob
-from rich.logging import RichHandler
 
 import json
 import logging
@@ -81,7 +80,7 @@ class test_CaptureVerification:
 
 
   def test_getCaptVerifCSV(self, test_read_config_file, getVerintToken):
-    """retrieves daily capt verif csv"""
+    """retrieves daily capt verif csv, packs to df"""
 
 
     for fileName in listdir(self.folderPath):
@@ -195,7 +194,9 @@ class test_CaptureVerification:
       # check non zero df
 
       check.not_equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV::df zero size after csv read')
-      LOGGER.info('test_getCaptVerifCSV:: capt verif df read OK')
+      # check if data
+
+      LOGGER.info(f'***** test_getCaptVerifCSV:: capt verif df read OK, number issues found: {len(self.CaptVerifDaily_df)}  *******')
 
     return self.CaptVerifDaily_df
 
