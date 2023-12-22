@@ -36,7 +36,7 @@ parent = os.path.dirname(current)
 from tests.test_collectDF import test_ClassCollectEngID
 
 def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) -> any:
-    """t active esting starts here, called from ./start.py"""
+    """t active testing starts here, called from ./main.py"""
     """ upper level handling, hands off API collection to est_ClassCollectEngID class in test_collectDF.py """
     """ API response call engagement ID comparison also undertaken in est_ClassCollectEngID class """
     """ in test_collectDF.py """

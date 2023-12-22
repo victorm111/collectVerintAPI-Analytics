@@ -6,8 +6,6 @@
       <excludeFolder url="file://$MODULE_DIR$/output" />
       <excludeFolder url="file://$MODULE_DIR$/report" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/collectVerintAPI+Analytics/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/collectVerintAPI+Analytics/venv" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
