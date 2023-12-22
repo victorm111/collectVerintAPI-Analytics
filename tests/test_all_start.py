@@ -1,13 +1,14 @@
 import pytest
 import logging
-import pandas as pd
-import os
+
 import os
 import sys
 import time as time
 from datetime import date
 
 import pytest_check as check        # soft asserts
+
+#from conftest import test_read_config_file, getCCaaSToken, getVerintToken
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -34,7 +35,9 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 
 # import the classes
-from test_collectDF import test_ClassCollectEngID
+from tests.test_collectDF import test_ClassCollectEngID
+
+
 
 def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) -> any:
     """testing starts here"""
@@ -47,4 +50,11 @@ def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) ->
     test_all_class.test_compare_df()
     LOGGER.info('test_all:: test_collect_EngIDs:: all routines finished')
     return
+
+
+
+
+
+
+
 

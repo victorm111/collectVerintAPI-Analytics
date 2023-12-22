@@ -35,9 +35,9 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 
 # import the classes
-from test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
-from test_sendCaptVerifReqWithToken import test_CaptureVerification
-from test_sendSearchAndReplayReqWithToken import test_SearchReplay
+from tests.test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
+from tests.test_sendCaptVerifReqWithToken import test_CaptureVerification
+from tests.test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 class test_ClassCollectEngID():
     """collects all API responses and compare eng call ids"""

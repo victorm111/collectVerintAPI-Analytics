@@ -4,7 +4,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import platform
 import pandas as pd
-import src.__init__     # contains sw version
+import src
 import pytest_html
 import json
 
@@ -16,6 +16,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+import src.__init__
 
 load_dotenv()  # take environment variables from .env.
 
@@ -29,7 +30,7 @@ def test_read_config_file():
     df_config = pd.DataFrame()
 
     try:
-        with open("./config/config.yml", 'r') as file:
+        with open("config/config.yml", 'r') as file:
             test_config = yaml.safe_load(file)
             cfgfile_parse_error = 0
 
