@@ -40,7 +40,12 @@ from tests.test_sendCaptVerifReqWithToken import test_CaptureVerification
 from tests.test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 class test_ClassCollectEngID():
-    """collects all API responses and compare eng call ids"""
+    """this class collects all API responses from Verint Capt Verif, S&R and Analytics Eng Detailed report, then """
+    """ compares eng call ids from Analytics Eng Detailed rpt (used as base reference) and Verint S&R """
+    """ want to see that Verint S&R contains all engagement ids included in Analytics hist ED report"""
+    """ same start, end times used in all API requests, Analytics need 00, 15, 30, 34 min boundary """
+    """ in start and end times"""
+
     def __init__(self, test_read_config_file: object) -> None:
 
         # Init dataframes es that store retrieved datasets

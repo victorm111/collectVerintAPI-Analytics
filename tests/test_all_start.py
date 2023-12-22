@@ -8,8 +8,6 @@ from datetime import date
 
 import pytest_check as check        # soft asserts
 
-#from conftest import test_read_config_file, getCCaaSToken, getVerintToken
-
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
@@ -37,18 +35,20 @@ parent = os.path.dirname(current)
 # import the classes
 from tests.test_collectDF import test_ClassCollectEngID
 
-
-
 def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) -> any:
-    """testing starts here"""
-    LOGGER.info('test_all:: test_collect_EngIDs:: start test')
-    LOGGER.debug('test_all:: test_collect_EngIDs:: started, init test class')
+    """t active esting starts here, called from ./start.py"""
+    """ upper level handling, hands off API collection to est_ClassCollectEngID class in test_collectDF.py """
+    """ API response call engagement ID comparison also undertaken in est_ClassCollectEngID class """
+    """ in test_collectDF.py """
+
+    LOGGER.info('test_all_start:: test_collect_EngIDs:: starting ..... ')
+    LOGGER.debug('test_all_start:: test_collect_EngIDs:: started, init test_ClassCollectEngID class in test_collectDF.py')
     test_all_class = test_ClassCollectEngID(test_read_config_file)
-    LOGGER.info('test_all:: test_collect_EngIDs:: pull df data from Verint S&R, Capt Verif and Analytics ED APIs')
+    LOGGER.info('test_all_start:: test_collect_EngIDs:: pull df data from Verint S&R, Capt Verif and Analytics ED APIs')
     test_all_class.test_collect_df(test_read_config_file, getCCaaSToken, getVerintToken)
-    LOGGER.info('test_all:: test_collect_EngIDs:: compare API returned data frames')
+    LOGGER.info('test_all_start:: test_collect_EngIDs:: compare API returned data frames')
     test_all_class.test_compare_df()
-    LOGGER.info('test_all:: test_collect_EngIDs:: all routines finished')
+    LOGGER.info('test_all_start:: test_collect_EngIDs:: all routines finished')
     return
 
 

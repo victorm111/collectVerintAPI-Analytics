@@ -20,7 +20,7 @@ setup(
     packages=find_packages(),
     long_description=read('README.md'),
     entry_points = {'console_scripts': [
-        'my_start=collectVerintAPI+Analytics.start:main',
+        'my_start=start:start',
     ]
 }
 )
