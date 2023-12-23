@@ -12,9 +12,9 @@ import os
 
 def main():
 
-
+# run from dist folder
     pytest_args = [
-        './tests',
+        'tests',
         # other tests here...
     ]
 
