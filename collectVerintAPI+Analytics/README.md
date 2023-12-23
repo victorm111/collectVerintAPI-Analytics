@@ -7,3 +7,5 @@ calls tests/test_all_start.py >> test_collect_EngIDs(test_read_config_file, getC
 
 >> python setup.py develop 
 to create setup.py
+
+pip install -r requirements.txt 

@@ -1,20 +1,21 @@
-import http.client
+import csv
 import glob
-
+import http.client
 import json
 import logging
 import os
-from os import listdir
-import pandas as pd
 import shutil
-import time as time
-from datetime import date,  timedelta
 import sys
-import csv
+import time as time
+from datetime import date, timedelta
+from os import listdir
+
+import pandas as pd
+import pytest_check as check  # soft asserts
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-import pytest_check as check        # soft asserts
+import requests.adapters
+import urllib3
+#from urllib3.util.retry import Retry
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -124,9 +125,10 @@ class test_CaptureVerification:
     # Set the Content-Type header to application/json for all requests in the session
     # session.headers.update({'Content-Type': 'application/json'})
 
-    retry = Retry(connect=25, backoff_factor=0.5)
+    retry = urllib3.Retry(connect=25, backoff_factor=0.5)
 
-    self.adapter = HTTPAdapter(max_retries=retry)
+
+    self.adapter = requests.adapters.HTTPAdapter(max_retries=retry)
     self.session.mount('https://', self.adapter)
     self.session.mount('http://', self.adapter)
     # Set the Content-Type header to application/json for all requests in the session

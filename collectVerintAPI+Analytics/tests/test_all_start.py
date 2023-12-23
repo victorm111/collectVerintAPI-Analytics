@@ -33,10 +33,11 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 
 # import the classes
-from tests.test_collectDF import test_ClassCollectEngID
+from test_collectDF import test_ClassCollectEngID
+#import test_collectDF
 
 def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) -> any:
-    """t active testing starts here, called from ./main.py"""
+    """ active testing starts here, called from ./main.py"""
     """ upper level handling, hands off API collection to est_ClassCollectEngID class in test_collectDF.py """
     """ API response call engagement ID comparison also undertaken in est_ClassCollectEngID class """
     """ in test_collectDF.py """

@@ -35,9 +35,10 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 
 # import the classes
-from tests.test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
-from tests.test_sendCaptVerifReqWithToken import test_CaptureVerification
-from tests.test_sendSearchAndReplayReqWithToken import test_SearchReplay
+
+from test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
+from test_sendCaptVerifReqWithToken import test_CaptureVerification
+from test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 class test_ClassCollectEngID():
     """this class collects all API responses from Verint Capt Verif, S&R and Analytics Eng Detailed report, then """
