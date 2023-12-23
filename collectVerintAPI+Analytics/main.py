@@ -13,7 +13,7 @@ def main():
 
 
     pytest_args = [
-        './collectVerintAPI+Analytics/tests',
+        './tests', '--html=./report/report.html',
         # other tests here...
     ]
 

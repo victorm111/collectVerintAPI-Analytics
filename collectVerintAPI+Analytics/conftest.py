@@ -30,7 +30,7 @@ def test_read_config_file():
     df_config = pd.DataFrame()
 
     try:
-        with open("./collectVerintAPI+Analytics/config/config.yml", 'r') as file:
+        with open("./config/config.yml", 'r') as file:
             test_config = yaml.safe_load(file)
             cfgfile_parse_error = 0
 
