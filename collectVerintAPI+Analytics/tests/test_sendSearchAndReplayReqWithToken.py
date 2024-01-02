@@ -49,6 +49,11 @@ class test_SearchReplay:
     self.todaydate = date.today().isoformat()
     #self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'
     self.Payload_start_time = "2023-12-18T00:00:00.000Z"   #  "beginPeriod": "2023-12-18T00:00:00.000Z",
+    self.collect_yesterday = test_read_config_file['latest_24hrs']['enable']
+
+    if self.collect_yesterday:
+      self.Payload_start_time = self.yesterdaydate + 'T00:00:00-00:00'  # update if 24hr test enabled
+
 
     self.Payload_end_time = self.todaydate + 'T00:00:00.000Z'
     self.requestType = 'Absolute'
@@ -57,8 +62,9 @@ class test_SearchReplay:
     self.author = 'VW'
     self.URL = test_read_config_file['urls']['url_wfo']
     self.URL_api = test_read_config_file['urls']['url_wfo_SearchReplayapi']
+    #self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
     #self.URL_api_interval = test_read_config_file['urls']['url_AnalyticsIntervalDetailed']
-    self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000'
+
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
     #self.DetailedReportDaily_df = pd.DataFrame()  # hold return data

@@ -1,6 +1,6 @@
-from root dir start with:
+from collectVerintAPI+Analytics dir start with:
 
-python -m collectVerintAPI+Analytics.main 
+python -m main 
 
 code entry ./main.py
 calls tests/test_all_start.py >> test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken)
@@ -9,3 +9,5 @@ calls tests/test_all_start.py >> test_collect_EngIDs(test_read_config_file, getC
 to create setup.py
 
 pip install -r requirements.txt 
+
+version in ./version.py

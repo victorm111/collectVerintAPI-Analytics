@@ -1,2 +1,0 @@
-[project.scripts]
-cli-name = "collectVerintAPI+Analytics.main:main"

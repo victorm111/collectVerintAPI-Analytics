@@ -4,7 +4,8 @@
 # Pycharm, target and working directories: C:\Users\victorm\PycharmProjects\pythonProject1\auto
 # set working dir below to be same as this
 # Version label
-
+latest_24hrs:
+  enable: !!bool FALSE     # if TRUE just retrieves + compares data from  midnight to midnight yesterday ONLY, if FALSE will take hard coded start time in py files
 
 dirs:
   working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories

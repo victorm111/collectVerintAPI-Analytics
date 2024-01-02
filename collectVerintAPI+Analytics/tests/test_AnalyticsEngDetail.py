@@ -50,11 +50,15 @@ class test_AnalyticsEngagementDetailReport:
         self.author = 'VW'
         self.URL = test_read_config_file['urls']['url']
         self.URL_api = 'null'
+        self.collect_yesterday = test_read_config_file['latest_24hrs']['enable']     # if collect last 24hr data
 
         ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
         self.interval_dates = '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
         # self.interval_dates = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+        if self.collect_yesterday:
+            self.interval_dates = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
+
         self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.interval_dates
 
         #self.interval_req = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
