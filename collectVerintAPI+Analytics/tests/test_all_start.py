@@ -5,6 +5,8 @@ import os
 import sys
 import time as time
 from datetime import date
+# import the classes
+from test_collectDF import test_ClassCollectEngID
 
 import pytest_check as check        # soft asserts
 
@@ -32,8 +34,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-# import the classes
-from test_collectDF import test_ClassCollectEngID
+
 #import test_collectDF
 
 def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) -> any:

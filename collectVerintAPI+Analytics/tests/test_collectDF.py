@@ -8,7 +8,11 @@ import sys
 import time as time
 from datetime import date
 import pytest_check as check        # soft asserts
+# import the classes
 
+from test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
+from test_sendCaptVerifReqWithToken import test_CaptureVerification
+from test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -34,11 +38,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-# import the classes
 
-from test_AnalyticsEngDetail import test_AnalyticsEngagementDetailReport
-from test_sendCaptVerifReqWithToken import test_CaptureVerification
-from test_sendSearchAndReplayReqWithToken import test_SearchReplay
 
 class test_ClassCollectEngID():
     """this class collects all API responses from Verint Capt Verif, S&R and Analytics Eng Detailed report, then """
