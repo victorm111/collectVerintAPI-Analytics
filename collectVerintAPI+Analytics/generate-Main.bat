@@ -1,0 +1,1 @@
+pyinstaller main.py --onefile   --clean --log-level  DEBUG -p .\venv\lib\site-packages\ --add-data ".\config\config.yml:."  --hidden-import requests --hidden-import pandas --hidden-import=pytest_check --hidden-import yaml --hidden-import dotenv  --noconfirm --nowindow
