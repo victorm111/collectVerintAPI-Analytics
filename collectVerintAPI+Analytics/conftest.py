@@ -7,6 +7,7 @@ import pandas as pd
 import src
 #import pytest_html
 import json
+from pytest_metadata.plugin import metadata_key
 
 import yaml
 import os
@@ -175,4 +176,13 @@ def getVerintToken(test_read_config_file):
 #             extras.append(pytest_html.extras.html("<div>Additional HTML</div>"))
 #         report.extras = extras
 
+def pytest_configure(config):
+    config.stash[metadata_key]["Project Name"] = "Auto PI"
 
+
+#hook for delete/modify environment info to html report
+
+@pytest.mark.optionalhook
+def pytest_metadata(metadata):
+    metadata.pop("JAVA_HOME", None)
+    metadata.pop("Plugins", None)

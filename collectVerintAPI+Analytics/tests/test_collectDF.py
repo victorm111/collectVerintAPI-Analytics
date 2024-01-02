@@ -121,7 +121,7 @@ class test_ClassCollectEngID():
             if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
 
                 LOGGER.error(
-                    f'test_compare_df:: test_getSearchAndReplay() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics not in Verint S&R ********')
+                    f'test_compare_df:: test_getSearchAndReplay() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics not in Verint S&R !!!!!!!')
                 LOGGER.debug(
                     'test_compare_df:: test_getSearchAndReplay() attempt dump ERROR calls to csv ')
 
