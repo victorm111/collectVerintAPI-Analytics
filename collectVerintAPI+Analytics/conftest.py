@@ -177,7 +177,7 @@ def getVerintToken(test_read_config_file):
 #         report.extras = extras
 
 def pytest_configure(config):
-    config.stash[metadata_key]["Project Name"] = "Auto PI"
+    config.stash[metadata_key]["Project Name"] = "Auto API"
 
 
 #hook for delete/modify environment info to html report
