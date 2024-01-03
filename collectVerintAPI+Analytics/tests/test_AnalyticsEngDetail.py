@@ -158,7 +158,7 @@ class test_AnalyticsEngagementDetailReport:
 
             self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
             check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no df returned')
-            LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() df created OK')
+            LOGGER.info('test_AnalyticdED_sendRequest:: DetailedReportDaily_df df created OK')
             # write the csv files
             try:
                 self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,

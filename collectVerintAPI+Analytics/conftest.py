@@ -14,13 +14,17 @@ import os
 import pytest
 from dotenv import load_dotenv
 import logging
+import time as time
+from datetime import date,  timedelta
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
-import src.__init__
+#import src.__init__
 
 load_dotenv()  # take environment variables from .env.
-
+today = str(date.today())
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S", t)
 
 @pytest.fixture(scope="function")
 def test_read_config_file():
@@ -49,12 +53,15 @@ def test_read_config_file():
         # check config file read ok
         assert cfgfile_parse_error == 0, 'assert error test_read_config_file: yaml cfg file not read'  # if cfgfile_parse_error = 1
         print("test_read_config_file(): read finished OK")
+        LOGGER.info(f'conftest:: test_read_config_file() today date: {today}')
+        LOGGER.info(f'conftest:: test_read_config_file() current time: {current_time}')
+
         python_version = str(platform.python_version())
         pytest_version = str(pytest.__version__)
-        testcode_version = str(src.__init__.__version__)
+        #testcode_version = str(src.__init__.__version__)
         LOGGER.info(f'conftest:: test_read_config_file() python version: {python_version}')
-        LOGGER.info(f'conftest:: test_read_config_file() pytest version: , {pytest_version}')
-        LOGGER.info(f'conftest:: test_read_config_file() test code version: {testcode_version}')
+        LOGGER.info(f'conftest:: test_read_config_file() pytest version:  {pytest_version}')
+        #LOGGER.info(f'conftest:: test_read_config_file() test code version: {testcode_version}')
         LOGGER.info('conftest:: test_read_config_file() finished')
 
     yield df_config
@@ -176,13 +183,13 @@ def getVerintToken(test_read_config_file):
 #             extras.append(pytest_html.extras.html("<div>Additional HTML</div>"))
 #         report.extras = extras
 
-def pytest_configure(config):
-    config.stash[metadata_key]["Project Name"] = "Auto API"
+# def pytest_configure(config):
+#    config.stash[metadata_key]["Project Name"] = "Auto API"
 
 
 #hook for delete/modify environment info to html report
 
-@pytest.mark.optionalhook
-def pytest_metadata(metadata):
-    metadata.pop("JAVA_HOME", None)
-    metadata.pop("Plugins", None)
+# @pytest.mark.optionalhook
+# def pytest_metadata(metadata):
+#     metadata.pop("JAVA_HOME", None)
+#     metadata.pop("Plugins", None)

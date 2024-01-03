@@ -8,7 +8,12 @@ LOGGER = logging.getLogger(__name__)
 import pytest
 import os
 
+import time as time
+from datetime import date,  timedelta
 
+today = str(date.today())
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S", t)
 
 def main():
 
@@ -17,7 +22,9 @@ def main():
         'tests',
         # other tests here...
     ]
-
+    LOGGER.info(f'main() test start .... ')
+    LOGGER.info(f'main() today date: {today}')
+    LOGGER.info(f'main() current time: {current_time}')
     LOGGER.info('main.py:: starting, call pytest.main with tests folder as arg; will call test_collect_EngIDs()')
     # get the current working directory
     current_working_directory = os.getcwd()

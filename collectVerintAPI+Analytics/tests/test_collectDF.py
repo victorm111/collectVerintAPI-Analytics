@@ -57,7 +57,8 @@ class test_ClassCollectEngID():
         self.dfSR_CallStarts = pd.DataFrame()        # stores Capt Verif matched to mismatch calls
         self.dfAnalyticsED_EngIDS = list()
         self.dfCaptVerif_EngIDS = list()
-        self.df_DetailEngDaily_sorted_NotRecorded = pd.DataFrame()
+        self.df_DetailEngDaily_sorted_NotRecorded = pd.DataFrame()      # records Analytics ED calls missing from AWE S&R
+        self.df_sorted_Recorded_notIn_DetailEngDaily = pd.DataFrame()   # records calls missing from Analytics ED but in AWE S&R
         self.number_calls = 0           # returned from Analytics EngDetailed API
         self.ED_column_headers = list()     # Analytics ED column headers returned from API call
 
@@ -121,33 +122,40 @@ class test_ClassCollectEngID():
             if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
 
                 LOGGER.error(
-                    f'test_compare_df:: test_getSearchAndReplay() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics not in Verint S&R !!!!!!!')
+                    f'test_compare_df:: test_compare_df() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics not in Verint S&R !!!!!!!')
+                LOGGER.error(
+                    f'test_compare_df:: test_compare_df() ERROR !!!!!!!! listing call eng ids reported in Analytics not in Verint S&R : {self.df_DetailEngDaily_sorted_NotRecorded}')
+
                 LOGGER.debug(
-                    'test_compare_df:: test_getSearchAndReplay() attempt dump ERROR calls to csv ')
+                    'test_compare_df:: test_compare_df() attempt dump ERROR calls to csv ')
 
                 try:
                     self.df_DetailEngDaily_sorted_NotRecorded.to_csv(self.csv_DailyMissing_output, index=False,
                                                                          header=self.ED_column_headers)
                 except:
                     LOGGER.exception(
-                        'test_compare_df:: test_getSearchAndReplay() daily csv creation error')
+                        'test_compare_df:: test_compare_df() daily csv creation error')
                 else:
-                    LOGGER.error('test_compare_df:: test_getSearchAndReplay() call mismatch csv written ok')
-
-                    #LOGGER.error('test_compare_df:: test_getSearchAndReplay() call mismatch, check if mismatch calls in capt verif df')
-                    #self.df_CaptVerificationDaily_sorted_mismatch = self.df_CaptVerificationDaily_sorted[
-                    #    ~self.df_CaptVerificationDaily_sorted['Start time'].isin(self.dfSR_CallStarts)]
-                    #if len(self.df_CaptVerificationDaily_sorted_mismatch):
-                     #   LOGGER.error(
-                      #      f'test_compare_df:: test_getSearchAndReplay() ERROR numner of calls reported in Analytics but not in Verint S&R and also flagged in Capt Verif: {len(self.df_CaptVerificationDaily_sorted_mismatch)}')
+                    LOGGER.error('test_compare_df::test_compare_df() call mismatch csv written ok')
 
             else:
-                LOGGER.info('********** test_compare_df:: test_getSearchAndReplay() no call recording mismatch **********')
+                LOGGER.info('********** test_compare_df:: test_compare_df() no call recording mismatch, all calls in Analytics ED are listed in AWE s&R **********')
 
         else:
             LOGGER.info(f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, none to compare *********')
             check.equal(len(self.df_DetailEngDaily_sorted_NotRecorded), 0,
                 'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
+
+        # check if calls in AWE S&R but not in Analytics Detailed Report
+        LOGGER.debug('test_compare_df:: check if all calls listed in AWE S&R are matched to engagement ids listed in Analytics Eng Detailed Report')
+
+        self.df_sorted_Recorded_notIn_DetailEngDaily = self.df_SR.cd8[
+            ~self.df_SR.cd8.isin(self.df_DetailEngDaily_sorted['engagement_id'])]
+        if len(self.df_sorted_Recorded_notIn_DetailEngDaily):
+            LOGGER.error(
+             f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
+            LOGGER.error(
+             f'test_compare_df::  !!!! list call eng ids reported in Verint S&R but not in Analytics ED report: {self.df_sorted_Recorded_notIn_DetailEngDaily}')
 
         LOGGER.info(f'test_collectDF:: test_compare_df:: finished')
         return
