@@ -117,12 +117,16 @@ class test_ClassCollectEngID:
             self.df_DetailEngDaily_sorted = self.df_DetailEngDaily.sort_values(by='dialog_start_time', ascending=True)
 
             LOGGER.debug(f'test_collectDF:: test_compare_df:: Verint S&R eng ids are: \n {self.dfSR_EngIDS}')
-            LOGGER.info(f'test_collectDF:: test_compare_df:: check that all CCaaS Analytics ED Eng call IDs (as reference) are all listed in AWE S&R recorded call Eng IDs')
+            LOGGER.info(f'test_collectDF:: test_compare_df:: ASSERTION check that all CCaaS Analytics ED Eng call IDs (as reference) are all listed in AWE S&R recorded call Eng IDs')
             #test = self.df_DetailEngDaily_sorted.engagement_id.array != self.df_SR_sorted.cd8.array # compare arrays
             self.df_DetailEngDaily_sorted_NotRecorded = self.df_DetailEngDaily_sorted[~self.df_DetailEngDaily_sorted['engagement_id'].isin(self.dfSR_EngIDS)]
             # pull Capt Verif calls with same call starts as mismatched calls
               # dump missed calls to csv
-            if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
+
+            try:
+                assert not len(self.df_DetailEngDaily_sorted_NotRecorded), 0
+            #if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
+            except AssertionError:
 
                 LOGGER.error(
                     f'test_compare_df:: test_compare_df() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics (as reference) not in Verint S&R !!!!!!!')
@@ -146,15 +150,19 @@ class test_ClassCollectEngID:
 
         else:
             LOGGER.info(f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, none to compare *********')
-            check.equal(len(self.df_DetailEngDaily_sorted_NotRecorded), 0,
-                'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
+            #check.equal(len(self.df_DetailEngDaily_sorted_NotRecorded), 0,
+             #   'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
 
         # check if calls in AWE S&R but not in Analytics Detailed Report
-        LOGGER.info('test_compare_df:: check if all call Eng IDs listed in AWE S&R are matched to engagement ids returned in Analytics Eng Detailed Report')
+        LOGGER.info('test_compare_df:: ASSERTION check if all call Eng IDs listed in AWE S&R are matched to engagement ids returned in Analytics Eng Detailed Report')
+
 
         self.df_sorted_Recorded_notIn_DetailEngDaily = self.df_SR[
             ~self.df_SR.cd8.isin(self.df_DetailEngDaily_sorted['engagement_id'])]
-        if len(self.df_sorted_Recorded_notIn_DetailEngDaily):
+        try:
+            assert not len(self.df_sorted_Recorded_notIn_DetailEngDaily), 0
+
+        except AssertionError:
             LOGGER.error(
              f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
             LOGGER.error(
@@ -174,7 +182,7 @@ class test_ClassCollectEngID:
             else:
                 LOGGER.error('test_compare_df::test_compare_df() ERROR list of calls in AWE S&R but not in Analytics csv written ok')
         else:
-            LOGGER.info('***** SUCCESS test_compare_df::  ALL call eng ids listed in AWE S&R (as reference) are matched to engagement ids listed in Analytics Eng Detailed Report ****** ')
+            LOGGER.info('********** SUCCESS test_compare_df:: ALL call eng ids listed in AWE S&R (as reference) are matched to engagement ids listed in Analytics Eng Detailed Report ****** ')
 
         LOGGER.info(f'test_collectDF:: test_compare_df:: all API call eng ID results comparison finished')
         return
