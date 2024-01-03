@@ -144,7 +144,7 @@ class test_SearchReplay:
     self.s.raise_for_status()
 
     print(f'test_getSearchAndReplay() session resp received code: {self.s.status_code}')
-    LOGGER.debug('test_getSearchAndReplay:: response received')
+    LOGGER.info(f'test_getSearchAndReplay:: response received: {self.s.status_code}')
 
     try:
       self.response_dict = json.loads(self.s.text)
@@ -159,7 +159,7 @@ class test_SearchReplay:
 
       if self.no_calls:
 
-        LOGGER.debug(f'test_getSearchAndReplay:: test_getSearchAndReplay() calls retrieved, start package to csv:')
+        LOGGER.info(f'test_getSearchAndReplay:: AWE test_getSearchAndReplay() calls retrieved, attempt write to csv at location: {self.csv_output}')
         # store call data headers from the json
         self.csv_headers = list(self.response_dict.get('Sessions')[0].keys())
 
@@ -177,15 +177,15 @@ class test_SearchReplay:
         try:
           self.SR_df.to_csv(self.csv_output, index=False, header=self.csv_headers)
         except:
-          LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() csv creation error')
+          LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() AWE S&R csv creation error')
         else:
-          LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() csv written ok')
+          LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() AWE S&R csv written ok')
 
 
       else:
         LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() no calls retrieved, finish up')
 
-    LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() completed OK')
+    LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() API test routines finished')
     return self.SR_df
 
 

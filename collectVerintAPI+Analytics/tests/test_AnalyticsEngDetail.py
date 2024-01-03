@@ -89,7 +89,7 @@ class test_AnalyticsEngagementDetailReport:
     def test_Analytics_ED_buildRequest(self, token) -> None:
         """build the request"""
 
-        LOGGER.info('test_Analytics_ED_buildRequest:: started')
+        LOGGER.debug('test_Analytics_ED_buildRequest:: started')
         self.token = token
         assert self.token, 'test_Analytics_ED_buildRequest:: token not retrieved'
         token_append = 'Bearer ' + self.token        # cat Bearer to token, include space after 'Bearer '
@@ -115,13 +115,13 @@ class test_AnalyticsEngagementDetailReport:
         # Set the Content-Type header to application/json for all requests in the session
         self.session.headers.update(self.headers)
         # print(f'dump headers: {self.session.headers}')
-        LOGGER.info('test_Analytics_ED_buildRequest:: finished')
+        LOGGER.debug('test_Analytics_ED_buildRequest:: finished')
         return
 
     def test_AnalyticdED_sendRequest(self) -> object:
         """ send the request and create df from response"""
 
-        LOGGER.info('test_AnalyticdED_sendRequest:: start')
+        LOGGER.debug('test_AnalyticdED_sendRequest:: start')
         self.URL_api = self.URL_api_daily
         LOGGER.info(f'test_AnalyticdED_sendRequest:: request start: {self.interval_dates}')
         try:
@@ -157,8 +157,9 @@ class test_AnalyticsEngagementDetailReport:
             # write calls list + headers to df
 
             self.DetailedReportDaily_df = pd.DataFrame(self.call_data, columns=self.column_names)
-            check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no df returned')
-            LOGGER.info('test_AnalyticdED_sendRequest:: DetailedReportDaily_df df created OK')
+            check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: \
+                    test_getSearchAndReplay() no df returned')
+            LOGGER.info(f'test_AnalyticdED_sendRequest:: Analytics DetailedReportDaily_df create OK, attempt df dump to csv to {self.csv_Daily_output}')
             # write the csv files
             try:
                 self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
@@ -171,5 +172,5 @@ class test_AnalyticsEngagementDetailReport:
         else:
             LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no calls found')
 
-        LOGGER.info('test_AnalyticdED_sendRequest:: routines finished')
+        LOGGER.info('test_AnalyticdED_sendRequest:: API test routines finished')
         return self.DetailedReportDaily_df, self.no_calls, self.column_names

@@ -160,35 +160,35 @@ class test_CaptureVerification:
 
     #print(f'***test_getCaptVerifCSV() resp received code: {res.code}')
     #print(f'***test_getCaptVerifCSV() session resp received code: {self.s.status_code}')
-    LOGGER.debug('test_getCaptVerifCSV:: 200 OK csv req response received, attempt write zip archive')
+    LOGGER.info(f'test_getCaptVerifCSV:: AWE Capt Verif csv request response received {self.s.status_code}, now attempt write Capt Verif zip archive to {self.zipPath}')
 
     try:
       with open(self.zipPath, 'wb') as zipFile:
           zipFile.write(self.s.content)
           LOGGER.debug('test_getCaptVerifCSV:: capt verif req response zip file write file OK')
     except:
-      LOGGER.exception('test_getCaptVerifCSV:: 200 OK csv req response received')
+      LOGGER.exception('test_getCaptVerifCSV:: AWE Capt Verif zip archive cannot be opened')
     else:
-      LOGGER.info('test_getCaptVerifCSV:: zip file created OK')
+      LOGGER.info('test_getCaptVerifCSV:: AWE Capt Verif zip retrieved OK')
 
     # need to unzip Capt Verif csv and import to DF
     # extract the file
     try:
       shutil.unpack_archive(self.zipPath, self.zipExtractFolder)
     except:
-      LOGGER.exception('test_getCaptVerifCSV:: unzip exception')
+      LOGGER.exception('test_getCaptVerifCSV:: AWE Capt Verif unzip exception')
     else:
-      LOGGER.info('test_getCaptVerifCSV:: unzip capt verif zip file success')
+      LOGGER.debug('test_getCaptVerifCSV:: AWE capt verif zip archive unzip success')
     # determine the zip file name
     #path = r'.\output\CaptVerif\*.csv'
 
     self.csv_file = glob.glob(self.csv_path)
-    LOGGER.debug('test_getCaptVerifCSV:: check csv available after unzip')
+    LOGGER.debug(f'test_getCaptVerifCSV:: AWE Capt Verif confirm csv available after unzip')
 
-    check.not_equal(self.csv_file, [], 'test_getCaptVerifCSV:: errormcsv file not found after unzip')
+    check.not_equal(self.csv_file, [], 'test_getCaptVerifCSV:: error csv file not found after unzip')
 
     # read the csv into a df
-    LOGGER.debug('test_getCaptVerifCSV:: csv found, try to open csv and read into df')
+    LOGGER.info(f'test_getCaptVerifCSV:: AWE Capt Verif unzipped csv now available at {self.csv_file[0]}, now try to open csv and read into df')
     # read csv headers
     try:
       f = open(self.csv_file[0], 'r')
@@ -196,16 +196,16 @@ class test_CaptureVerification:
       LOGGER.exception('test_getCaptVerifCSV:: unzip capt verif zip file failed')
     else:
       reader = csv.reader(f)
-      LOGGER.info('test_getCaptVerifCSV:: unzip capt verif csv read OK')
+      LOGGER.debug('test_getCaptVerifCSV:: AWE Capt Verif results csv read OK')
       self.csv_headers = next(reader, None)
       self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
-      LOGGER.info(f'test_getCaptVerifCSV:: capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)}')
+      LOGGER.info(f' !!!!!!! test_getCaptVerifCSV:: AWE Capt Verif capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)} !!!!!!')
       # check non zero df
 
-      check.not_equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV::df zero size after csv read')
+      check.not_equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV:: AEE Capt Verif df zero size after csv read')
       # check if data
 
-      LOGGER.info(f'***** test_getCaptVerifCSV:: capt verif df read OK, number issues found: {len(self.CaptVerifDaily_df)}  *******')
+      LOGGER.info(f'***** test_getCaptVerifCSV:: AWE Capt Verif API test routines finished')
 
     return self.CaptVerifDaily_df
 

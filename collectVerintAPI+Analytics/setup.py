@@ -41,7 +41,7 @@ def read(fname):
 
 
 print("+++++++++++++++++++++++++++++ setup.py: start testing++++++++++++++++++++++++++++++++")
-print("code version: ", __version__)
+print("test code version: ", __version__)
 
 setup(
     name="API-collect",
