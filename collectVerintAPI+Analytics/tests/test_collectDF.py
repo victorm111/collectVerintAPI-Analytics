@@ -55,17 +55,23 @@ class test_ClassCollectEngID:
         self.dfSR_EngIDS = pd.DataFrame()
         self.dfSR_CallStarts = pd.DataFrame()        # stores Capt Verif matched to mismatch calls
         self.dfAnalyticsED_EngIDS = list()
-        self.dfCaptVerif_EngIDS = list()
+        #self.dfCaptVerif_EngIDS = list()
         self.df_DetailEngDaily_sorted_NotRecorded = pd.DataFrame()      # records Analytics ED calls missing from AWE S&R
         self.df_sorted_Recorded_notIn_DetailEngDaily = pd.DataFrame()   # records calls missing from Analytics ED but in AWE S&R
-        self.number_calls = 0           # returned from Analytics EngDetailed API
+        self.AnalyticsNumber_calls = 0           # returned from Analytics EngDetailed API
+        self.SR_Number_calls = 0                 # returned from AWE S&R API
+
         self.ED_column_headers = list()     # Analytics ED column headers returned from API call
         self.SR_column_headers = list()  # Verint S&R column headers returned from API call
 
         self.csv_DailyMissing_output = test_read_config_file['dirs']['ED_column_headers']   # calls in ED but not in AWE S&R
         self.csv_DailyMissingED_output = test_read_config_file['dirs'][
             'SR_column_headers']  # calls in ED but not in AWE S&R
-        self.Issues_found = 'null'      # tests if Capt Verif issues returned
+        self.captVerifResult = False        # Capt verif test result False if failed result, call rec indicates rec issues found
+        self.tests_failed = 0     # number of tests failed
+        self.number_of_tests = 0    # number of comparison tests incl capt verif test
+        self.listTest = {"TestName":[],"Result":[], "Description":[]}   # table containing test results
+        self.TestResults_df = pd.DataFrame()  # as per self.listTest but a pandas df
 
     def test_collect_df(self, test_read_config_file, getCCaaSToken, getVerintToken) -> any:
         """run Analytics detailed Eng , Verint Capt Verif + S&R API, collect df"""
@@ -78,29 +84,43 @@ class test_ClassCollectEngID:
         LOGGER.debug('test_collect_df:: test_Analytics_ED_buildRequest()')
         self.df_DetailEngDaily, self.number_calls, self.ED_column_headers = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves daily data
 
+
         LOGGER.debug(
             'test_collect_df:: init test_SearchReplay class')
         test_SRReport = test_SearchReplay(test_read_config_file)
         LOGGER.debug(
             'test_collect_df:: init test_SearchReplay class complete, retrieve results')
         self.df_SR = test_SRReport.test_getSearchAndReplay(getVerintToken)
+
+        self.SR_Number_calls = len(self.df_SR)
+
         # retrieve Verint capt verif
         LOGGER.debug('test_collect_df:: init test_CaptureVerification class')
         test_CaptVerifReport = test_CaptureVerification(test_read_config_file)
         LOGGER.debug(
             'test_collect_df:: test_CaptureVerification:: test_getCaptVerifCSV() request capt verif zip/csv results')
-        self.df_CaptVerificationDaily = test_CaptVerifReport.test_getCaptVerifCSV(test_read_config_file, getVerintToken)
+        self.df_CaptVerificationDaily, self.captVerifResult = test_CaptVerifReport.test_getCaptVerifCSV(test_read_config_file, getVerintToken)
+        self.number_of_tests += 1  # increment number of tests
+        check.equal(self.captVerifResult, True, 'test_getCaptVerifCSV(): AWE reported call recording issues')
+
+        if not self.captVerifResult:
+            self.tests_failed+=1
+            self.listTest.append('test_CaptVerifReport: AWE reports Capt Verif call rec issues')
+            self.listTest["Result"].append(False)
+            LOGGER.info(
+                f'test_collect_df:: test_getCaptVerifCSV() AWE Capt Verif reports issues with {len(self.df_CaptVerificationDaily)} calls')
+
         LOGGER.debug(
-            'test_collect_df:: test_getCaptVerifCSV() capt verif zip/csv results finished, check for call issues')
-        LOGGER.debug('test_collect_df:: init test_CaptureVerification class')
+            'test_collect_df:: test_getCaptVerifCSV() capt verif zip/csv results finished')
+
         LOGGER.debug(f'test_collect_df:: finished collecting Analytics and Verint API data, number of calls returned from Analytics Engagement Detail Report API: {self.number_calls}')
 
         return
 
     def test_compare_df(self) -> any:
-        """compare engagement ids across df pulled from S+R, Analytics Daily Detailed reports"""
+        """compare engagement ids across df pulled from S+R, Analytics Daily Detailed reports, check in both directions"""
 
-        if self.number_calls != 0:
+        if self.AnalyticsNumber_calls != 0:
 
             # sort by start times
             self.df_SR_sorted = self.df_SR.sort_values(by='local_audio_start_time', ascending=True)
@@ -124,9 +144,17 @@ class test_ClassCollectEngID:
               # dump missed calls to csv
 
             try:
+                self.number_of_tests += 1  # increment number of tests
                 assert not len(self.df_DetailEngDaily_sorted_NotRecorded), 0
             #if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
             except AssertionError:
+
+                self.tests_failed+=1
+                # update test dictionary
+                self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
+                self.listTest["Result"].append("FAIL")
+                self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
+
 
                 LOGGER.error(
                     f'test_compare_df:: test_compare_df() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics (as reference) not in Verint S&R !!!!!!!')
@@ -148,41 +176,137 @@ class test_ClassCollectEngID:
             else:
                 LOGGER.info('********** SUCCESS test_compare_df:: test_compare_df() NO call recording mismatch, all call eng IDs in Analytics ED rpt (as reference) are listed in AWE S&R **********')
 
+                # update test dictionary
+                self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
+                self.listTest["Result"].append("PASSED")
+                self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
+
+
         else:
-            LOGGER.info(f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, none to compare *********')
-            #check.equal(len(self.df_DetailEngDaily_sorted_NotRecorded), 0,
-             #   'test_collectDF :: test_compare_df : mismatch Analytics reported calls and Verint S&R recordings')
 
-        # check if calls in AWE S&R but not in Analytics Detailed Report
-        LOGGER.info('test_compare_df:: ASSERTION check if all call Eng IDs listed in AWE S&R are matched to engagement ids returned in Analytics Eng Detailed Report')
+            LOGGER.info(
+                f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, double check no calls returned from AWE S&R *********')
+
+            # double check AWE S&R also equal to zero calls
+            try:
+                self.number_of_tests += 1  # increment number of tests
+                assert self.SR_Number_calls == 0
+
+            except AssertionError:
+                LOGGER.error(f'test_compare_df::test_compare_df() Analytics number calls = 0 but {self.SR_Number_calls} calls returned from AWE S&R')
+                LOGGER.error(
+                    f'test_compare_df::test_compare_df() dump calls not reported in Analytics (returned 0 calls) to {self.csv_DailyMissingED_output}')
+                self.tests_failed += 1
+
+                # update test dictionary
+                self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
+                self.listTest["Result"].append("FAIL")
+                self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
+
+                # dump the calls
+                try:
+                    self.df_SR_sorted.to_csv(self.csv_DailyMissingED_output, index=False,
+                                                                         header=self.SR_column_headers)
+                except:
+                    LOGGER.exception(
+                        f'test_compare_df:: test_compare_df() daily {self.csv_DailyMissingED_output} csv creation error')
+                else:
+                    LOGGER.error('test_compare_df::test_compare_df() call mismatch csv written ok')
+
+            else:
+                LOGGER.info(
+                    f'***** SUCCESS test_compare_df::test_compare_df() Analytics number calls = 0 and calls returned from AWE S&R also = 0')
+
+                # update test dictionary
+                self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
+                self.listTest["Result"].append("PASSED")
+                self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
+
+        if len(self.df_SR):
+            # check if calls in AWE S&R but not in Analytics Detailed Report
+            LOGGER.info('test_compare_df:: ASSERTION check if all call Eng IDs listed in AWE S&R are matched to engagement ids returned in Analytics Eng Detailed Report')
 
 
-        self.df_sorted_Recorded_notIn_DetailEngDaily = self.df_SR[
-            ~self.df_SR.cd8.isin(self.df_DetailEngDaily_sorted['engagement_id'])]
-        try:
-            assert not len(self.df_sorted_Recorded_notIn_DetailEngDaily), 0
-
-        except AssertionError:
-            LOGGER.error(
-             f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
-            LOGGER.error(
-             f'test_compare_df::  !!!! list call eng ids reported in Verint S&R but not in Analytics ED report: {self.df_sorted_Recorded_notIn_DetailEngDaily}')
-
-            LOGGER.debug(
-                f'test_compare_df:: test_compare_df() attempt dump ERROR calls in AWE S&R but not in Analytics \
-                    ED report \
-                    to csv in: {self.csv_DailyMissingED_output}')
+            self.df_sorted_Recorded_notIn_DetailEngDaily = self.df_SR[
+                ~self.df_SR.cd8.isin(self.df_DetailEngDaily_sorted['engagement_id'])]
 
             try:
-                self.df_sorted_Recorded_notIn_DetailEngDaily.to_csv(self.csv_DailyMissingED_output, index=False,
-                                                             header=self.SR_column_headers)
-            except:
-                LOGGER.exception(
-                    'test_compare_df:: test_compare_df() ERROR calls in AWE S&R but not in Analytics csv creation error')
-            else:
-                LOGGER.error('test_compare_df::test_compare_df() ERROR list of calls in AWE S&R but not in Analytics csv written ok')
-        else:
-            LOGGER.info('********** SUCCESS test_compare_df:: ALL call eng ids listed in AWE S&R (as reference) are matched to engagement ids listed in Analytics Eng Detailed Report ****** ')
+                self.number_of_tests += 1  # increment number of tests
+                assert not len(self.df_sorted_Recorded_notIn_DetailEngDaily), 0
 
-        LOGGER.info(f'test_collectDF:: test_compare_df:: all API call eng ID results comparison finished')
-        return
+            except AssertionError:
+
+                self.tests_failed += 1
+                # update test dictionary
+                self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
+                self.listTest["Result"].append("FAIL")
+                self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+
+                LOGGER.error(
+                    f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
+                LOGGER.error(
+                    f'test_compare_df::  !!!! list call eng ids reported in Verint S&R but not in Analytics ED report: {self.df_sorted_Recorded_notIn_DetailEngDaily}')
+
+                LOGGER.debug(
+                    f'test_compare_df:: test_compare_df() attempt dump ERROR calls in AWE S&R but not in Analytics ED report to csv in: {self.csv_DailyMissingED_output}')
+
+                try:
+                    self.df_sorted_Recorded_notIn_DetailEngDaily.to_csv(self.csv_DailyMissingED_output, index=False,
+                                                             header=self.SR_column_headers)
+                except:
+                    LOGGER.exception(
+                    f'test_compare_df:: test_compare_df() ERROR calls in AWE S&R but not in Analytics {self.csv_DailyMissingED_output} csv creation error')
+                else:
+                    LOGGER.error('test_compare_df::test_compare_df() ERROR list of calls in AWE S&R but not in Analytics csv written ok')
+            else:
+
+                # update test dictionary
+                self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
+                self.listTest["Result"].append("PASSED")
+                self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+
+                LOGGER.info('********** SUCCESS test_compare_df:: ALL call eng ids listed in AWE S&R (as reference) are matched to engagement ids listed in Analytics Eng Detailed Report ****** ')
+
+        else:
+            LOGGER.info(
+                'test_compare_df::no calls returned from AWE S&R, double check no calls also returned from Analytics')
+
+            try:
+                self.number_of_tests += 1  # increment number of tests
+                assert not len(self.df_DetailEngDaily), 0
+
+            except AssertionError:
+
+                self.tests_failed += 1
+                # update test dictionary
+                self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
+                self.listTest["Result"].append("FAIL")
+                self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+
+                LOGGER.error(
+                    f'test_compare_df::  !!!! ERROR 0 calls reported in Verint S&R but Analytics ED reported: {len(self.df_DetailEngDaily_sorted)}')
+
+                LOGGER.debug(
+                    f'test_compare_df:: test_compare_df() attempt dump ERROR calls in AWE S&R but not in Analytics ED report to csv in: {self.csv_DailyMissing_output}')
+
+                try:
+                    self.df_sorted_Recorded_notIn_DetailEngDaily.to_csv(self.csv_DailyMissing_output, index=False,
+                                                                        header=self.ED_column_headers)
+                except:
+                    LOGGER.exception(
+                        f'test_compare_df:: test_compare_df() ERROR calls in AWE S&R but not in Analytics {self.csv_DailyMissing_output} csv creation error')
+                else:
+                    LOGGER.error(
+                        'test_compare_df::test_compare_df() ERROR list of calls in AWE S&R but not in Analytics csv written ok')
+            else:
+                # update test dictionary
+                self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
+                self.listTest["Result"].append("PASSED")
+                self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+                LOGGER.info(
+                    '********** SUCCESS test_compare_df:: call detail from AWE S&R (as reference) match Analytics Eng Detailed Report ****** ')
+
+        LOGGER.info(f'test_collectDF:: test_compare_df:: all API call eng ID results comparison testing finished')
+        # LOGGER.info(f'******** test_collectDF:: test_compare_df:: tests status: {self.listTest} ')
+        self.TestResults_df = pd.DataFrame.from_dict(self.listTest, orient='columns')
+        return self.TestResults_df

@@ -165,12 +165,12 @@ class test_AnalyticsEngagementDetailReport:
                 self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
                                                                      header=self.column_names)
             except:
-                LOGGER.exception('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv creation error')
+                LOGGER.exception('test_AnalyticdED_sendRequest::  daily csv creation error')
             else:
-                LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() daily csv written ok')
+                LOGGER.info('test_AnalyticdED_sendRequest::  daily csv written ok')
 
         else:
-            LOGGER.info('test_AnalyticdED_sendRequest:: test_getSearchAndReplay() no calls found')
+            LOGGER.info('test_AnalyticdED_sendRequest::  no calls found, no output csv created')
 
         LOGGER.info('test_AnalyticdED_sendRequest:: API test routines finished')
         return self.DetailedReportDaily_df, self.no_calls, self.column_names

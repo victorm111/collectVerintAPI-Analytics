@@ -177,15 +177,15 @@ class test_SearchReplay:
         try:
           self.SR_df.to_csv(self.csv_output, index=False, header=self.csv_headers)
         except:
-          LOGGER.exception('test_getSearchAndReplay:: test_getSearchAndReplay() AWE S&R csv creation error')
+          LOGGER.exception('test_getSearchAndReplay::  AWE S&R csv creation error')
         else:
-          LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() AWE S&R csv written ok')
+          LOGGER.info('test_getSearchAndReplay::  AWE S&R csv written ok')
 
 
       else:
-        LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() no calls retrieved, finish up')
+        LOGGER.info('test_getSearchAndReplay::  no calls retrieved therefore no output csv created, finish up')
 
-    LOGGER.info('test_getSearchAndReplay:: test_getSearchAndReplay() API test routines finished')
+    LOGGER.info('test_getSearchAndReplay::  API test routines finished')
     return self.SR_df
 
 

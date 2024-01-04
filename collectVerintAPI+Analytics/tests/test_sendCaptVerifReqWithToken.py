@@ -83,6 +83,8 @@ class test_CaptureVerification:
     self.zipExtractFolder = '.\output\CaptVerif'
     self.csv_path = r'.\output\CaptVerif\*.csv'
     self.csv_headers = 'null'
+    self.test_result = False    # tracks if capt verif call rec issues returned, overall test result
+
     LOGGER.debug('CaptureVerification:: init finished')
     return
 
@@ -199,13 +201,16 @@ class test_CaptureVerification:
       LOGGER.debug('test_getCaptVerifCSV:: AWE Capt Verif results csv read OK')
       self.csv_headers = next(reader, None)
       self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
-      LOGGER.info(f' !!!!!!! test_getCaptVerifCSV:: AWE Capt Verif capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)} !!!!!!')
+      LOGGER.info(f' test_getCaptVerifCSV:: AWE Capt Verif capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)} ')
+
+      if len(self.CaptVerifDaily_df) == 0:
+        self.test_result = True
       # check non zero df
 
-      check.not_equal(len(self.CaptVerifDaily_df), 0, 'test_getCaptVerifCSV:: AEE Capt Verif df zero size after csv read')
+      check.equal(len(self.CaptVerifDaily_df), 0, ' !!!!! test_getCaptVerifCSV:: AEE Capt Verif df non zero size after csv read, call rec issues indicated !!!!!')
       # check if data
 
       LOGGER.info(f'***** test_getCaptVerifCSV:: AWE Capt Verif API test routines finished')
 
-    return self.CaptVerifDaily_df
+    return self.CaptVerifDaily_df, self.test_result
 
