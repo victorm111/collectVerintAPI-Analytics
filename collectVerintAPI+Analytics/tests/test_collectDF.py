@@ -104,9 +104,20 @@ class test_ClassCollectEngID:
         check.equal(self.captVerifResult, True, 'test_getCaptVerifCSV(): AWE reported call recording issues')
 
         if not self.captVerifResult:
-            self.tests_failed+=1
-            self.listTest.append('test_CaptVerifReport: AWE reports Capt Verif call rec issues')
-            self.listTest["Result"].append(False)
+            self.tests_failed += 1
+            # update test dictionary
+            self.listTest["TestName"].append("checkAll-AWE-CaptVerif")
+            self.listTest["Result"].append("FAILED")
+            self.listTest["Description"].append(
+                "Checks for AWE reported call recording capture verification issues")
+        else:
+            # update test dictionary
+            self.listTest["TestName"].append("checkAll-AWE-CaptVerif")
+            self.listTest["Result"].append("PASSED")
+            self.listTest["Description"].append(
+                "Checks for AWE reported call recording capture verification issues")
+
+
             LOGGER.info(
                 f'test_collect_df:: test_getCaptVerifCSV() AWE Capt Verif reports issues with {len(self.df_CaptVerificationDaily)} calls')
 
@@ -152,7 +163,7 @@ class test_ClassCollectEngID:
                 self.tests_failed+=1
                 # update test dictionary
                 self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
-                self.listTest["Result"].append("FAIL")
+                self.listTest["Result"].append("FAILED")
                 self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
 
 
@@ -200,7 +211,7 @@ class test_ClassCollectEngID:
 
                 # update test dictionary
                 self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
-                self.listTest["Result"].append("FAIL")
+                self.listTest["Result"].append("FAILED")
                 self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
 
                 # dump the calls
@@ -239,7 +250,7 @@ class test_ClassCollectEngID:
                 self.tests_failed += 1
                 # update test dictionary
                 self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
-                self.listTest["Result"].append("FAIL")
+                self.listTest["Result"].append("FAILED")
                 self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
 
                 LOGGER.error(
@@ -280,7 +291,7 @@ class test_ClassCollectEngID:
                 self.tests_failed += 1
                 # update test dictionary
                 self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
-                self.listTest["Result"].append("FAIL")
+                self.listTest["Result"].append("FAILED")
                 self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
 
                 LOGGER.error(
