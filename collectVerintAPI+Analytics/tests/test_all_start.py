@@ -50,7 +50,8 @@ def test_collect_EngIDs(test_read_config_file, getCCaaSToken, getVerintToken) ->
     LOGGER.info('test_all_start:: test_collect_EngIDs:: compare API returned data frames')
     test_results = test_all_class.test_compare_df() # retrieves dictionary of test results to print
     LOGGER.info(f'test_all_start:: test_collect_EngIDs:: all routines finished, dump test results to ./report/test_results.html')
-    test_results.to_html('./report/test_results.html')
+    test_results.to_html('./report/test_results.html', justify='center')
+    LOGGER.info(f'test_all_start:: test_collect_EngIDs:: compare API returned data frames')
     return
 
 
