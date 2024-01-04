@@ -103,19 +103,20 @@ class test_ClassCollectEngID:
         self.number_of_tests += 1  # increment number of tests
         check.equal(self.captVerifResult, True, 'test_getCaptVerifCSV(): AWE reported call recording issues')
 
+        self.listTest["TestName"].append("checkAll-AWE-CaptVerif")
+        self.listTest["Description"].append(
+            "Checks for AWE reported call recording capture verification issues")
+
         if not self.captVerifResult:
             self.tests_failed += 1
             # update test dictionary
-            self.listTest["TestName"].append("checkAll-AWE-CaptVerif")
+
             self.listTest["Result"].append("FAILED")
-            self.listTest["Description"].append(
-                "Checks for AWE reported call recording capture verification issues")
+
         else:
             # update test dictionary
-            self.listTest["TestName"].append("checkAll-AWE-CaptVerif")
+
             self.listTest["Result"].append("PASSED")
-            self.listTest["Description"].append(
-                "Checks for AWE reported call recording capture verification issues")
 
 
             LOGGER.info(
@@ -155,18 +156,17 @@ class test_ClassCollectEngID:
               # dump missed calls to csv
 
             try:
+                self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
+                self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
                 self.number_of_tests += 1  # increment number of tests
                 assert not len(self.df_DetailEngDaily_sorted_NotRecorded), 0
+
             #if len(self.df_DetailEngDaily_sorted_NotRecorded) != 0:
             except AssertionError:
 
                 self.tests_failed+=1
                 # update test dictionary
-                self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
                 self.listTest["Result"].append("FAILED")
-                self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
-
-
                 LOGGER.error(
                     f'test_compare_df:: test_compare_df() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics (as reference) not in Verint S&R !!!!!!!')
                 LOGGER.error(
@@ -186,12 +186,8 @@ class test_ClassCollectEngID:
 
             else:
                 LOGGER.info('********** SUCCESS test_compare_df:: test_compare_df() NO call recording mismatch, all call eng IDs in Analytics ED rpt (as reference) are listed in AWE S&R **********')
-
                 # update test dictionary
-                self.listTest["TestName"].append("checkAllAnalyticsEngIDsInAWE-S&R")
                 self.listTest["Result"].append("PASSED")
-                self.listTest["Description"].append("Checks all call eng IDs returned from CCaaS Analyticd ED detailed report are listed in AWE S&R")
-
 
         else:
 
@@ -200,6 +196,9 @@ class test_ClassCollectEngID:
 
             # double check AWE S&R also equal to zero calls
             try:
+                self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
+
+                self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
                 self.number_of_tests += 1  # increment number of tests
                 assert self.SR_Number_calls == 0
 
@@ -208,11 +207,8 @@ class test_ClassCollectEngID:
                 LOGGER.error(
                     f'test_compare_df::test_compare_df() dump calls not reported in Analytics (returned 0 calls) to {self.csv_DailyMissingED_output}')
                 self.tests_failed += 1
-
                 # update test dictionary
-                self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
                 self.listTest["Result"].append("FAILED")
-                self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
 
                 # dump the calls
                 try:
@@ -227,11 +223,8 @@ class test_ClassCollectEngID:
             else:
                 LOGGER.info(
                     f'***** SUCCESS test_compare_df::test_compare_df() Analytics number calls = 0 and calls returned from AWE S&R also = 0')
-
                 # update test dictionary
-                self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
                 self.listTest["Result"].append("PASSED")
-                self.listTest["Description"].append("Checks zero call eng IDs returned from CCaaS Analyticd ED detailed report matched in AWE S&R")
 
         if len(self.df_SR):
             # check if calls in AWE S&R but not in Analytics Detailed Report
@@ -242,6 +235,10 @@ class test_ClassCollectEngID:
                 ~self.df_SR.cd8.isin(self.df_DetailEngDaily_sorted['engagement_id'])]
 
             try:
+                # update test dictionary
+                self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
+
+                self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
                 self.number_of_tests += 1  # increment number of tests
                 assert not len(self.df_sorted_Recorded_notIn_DetailEngDaily), 0
 
@@ -249,9 +246,9 @@ class test_ClassCollectEngID:
 
                 self.tests_failed += 1
                 # update test dictionary
-                self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
+
                 self.listTest["Result"].append("FAILED")
-                self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+
 
                 LOGGER.error(
                     f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
@@ -272,10 +269,7 @@ class test_ClassCollectEngID:
             else:
 
                 # update test dictionary
-                self.listTest["TestName"].append("checkAllAWE-S&RcallIDsAlsoInAnalyticsEDreport")
                 self.listTest["Result"].append("PASSED")
-                self.listTest["Description"].append("Checks all call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
-
                 LOGGER.info('********** SUCCESS test_compare_df:: ALL call eng ids listed in AWE S&R (as reference) are matched to engagement ids listed in Analytics Eng Detailed Report ****** ')
 
         else:
@@ -283,6 +277,10 @@ class test_ClassCollectEngID:
                 'test_compare_df::no calls returned from AWE S&R, double check no calls also returned from Analytics')
 
             try:
+                # update test dictionary
+                self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
+
+                self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
                 self.number_of_tests += 1  # increment number of tests
                 assert not len(self.df_DetailEngDaily), 0
 
@@ -290,9 +288,8 @@ class test_ClassCollectEngID:
 
                 self.tests_failed += 1
                 # update test dictionary
-                self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
+
                 self.listTest["Result"].append("FAILED")
-                self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
 
                 LOGGER.error(
                     f'test_compare_df::  !!!! ERROR 0 calls reported in Verint S&R but Analytics ED reported: {len(self.df_DetailEngDaily_sorted)}')
@@ -311,9 +308,9 @@ class test_ClassCollectEngID:
                         'test_compare_df::test_compare_df() ERROR list of calls in AWE S&R but not in Analytics csv written ok')
             else:
                 # update test dictionary
-                self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
+
                 self.listTest["Result"].append("PASSED")
-                self.listTest["Description"].append("Checks zero call eng IDs returned from AWE S&R matched in CCaaS Analyticd ED detailed report")
+
                 LOGGER.info(
                     '********** SUCCESS test_compare_df:: call detail from AWE S&R (as reference) match Analytics Eng Detailed Report ****** ')
 
