@@ -67,6 +67,7 @@ class test_CaptureVerification:
     self.s = 'null'  # session request
     #self.DetailedReportInterval_df = pd.DataFrame()  # hold returned data, create empty
     self.CaptVerifDaily_df = pd.DataFrame()  # hold return data, zero it initially
+    self.CaptVerifDaily_noCDRnotFound = pd.DataFrame() # Capt Verif results df but with no 'Record in error, no CDR found' errors filter out, CCaaS CDR not supported
     self.response_dict = 'null'
     self.token = 'null'
     self.payload = {}
@@ -201,16 +202,21 @@ class test_CaptureVerification:
       LOGGER.debug('test_getCaptVerifCSV:: AWE Capt Verif results csv read OK')
       self.csv_headers = next(reader, None)
       self.CaptVerifDaily_df = pd.read_csv(self.csv_file[0], header=0, names=self.csv_headers)
-      LOGGER.info(f' test_getCaptVerifCSV:: AWE Capt Verif capt verif csv, calls found with issues: {len(self.CaptVerifDaily_df)} ')
+      # delete rows if error 'Recorded in error, CDR not found' reported in row as TRUE, AWE does not support CCaaS CDR
+      self.CaptVerifDaily_noCDRnotFound = self.CaptVerifDaily_df[self.CaptVerifDaily_df['Recorded in error, CDR not found'] != True]
+      #df = df[df.line_race != 0]
 
-      if len(self.CaptVerifDaily_df) == 0:
+      LOGGER.info(f' test_getCaptVerifCSV:: AWE Capt Verif capt verif csv, calls found with issues: {len(self.CaptVerifDaily_noCDRnotFound)} ')
+
+      if len(self.CaptVerifDaily_noCDRnotFound) == 0:
         self.test_result = True
+
       # check non zero df
 
-      check.equal(len(self.CaptVerifDaily_df), 0, ' !!!!! test_getCaptVerifCSV:: AEE Capt Verif df non zero size after csv read, call rec issues indicated !!!!!')
+      check.equal(len(self.CaptVerifDaily_noCDRnotFound), 0, ' !!!!! test_getCaptVerifCSV:: AEE Capt Verif df non zero size after csv read, call rec issues indicated !!!!!')
       # check if data
 
       LOGGER.info(f'***** test_getCaptVerifCSV:: AWE Capt Verif API test routines finished')
 
-    return self.CaptVerifDaily_df, self.test_result
+    return self.CaptVerifDaily_noCDRnotFound, self.test_result
 

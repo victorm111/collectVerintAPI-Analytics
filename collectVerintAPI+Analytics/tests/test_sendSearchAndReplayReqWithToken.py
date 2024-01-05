@@ -67,6 +67,7 @@ class test_SearchReplay:
 
     self.s = 'null'  # session request
     self.SR_df = pd.DataFrame()  # hold returned data, create empty
+    self.SR_df_sorted =pd.DataFrame()  # hold returned data, create empty
     #self.DetailedReportDaily_df = pd.DataFrame()  # hold return data
     self.response_dict = {}     # empty dictionary
     self.token = 'null'
@@ -173,9 +174,11 @@ class test_SearchReplay:
           self.SR_df = pd.DataFrame(mylist, columns=self.csv_headers)
 
         check.not_equal(len(self.SR_df), 0, 'test_getSearchAndReplay() ERROR no calls df returned')
+        self.SR_df_sorted = self.SR_df.sort_values(by='local_audio_start_time', ascending=False)
 
         try:
-          self.SR_df.to_csv(self.csv_output, index=False, header=self.csv_headers)
+
+          self.SR_df_sorted.to_csv(self.csv_output, index=False, header=self.csv_headers)
         except:
           LOGGER.exception('test_getSearchAndReplay::  AWE S&R csv creation error')
         else:

@@ -66,6 +66,7 @@ class test_AnalyticsEngagementDetailReport:
         self.s = 'null'     # session request
 
         self.DetailedReportDaily_df = pd.DataFrame()        # hold return data
+        self.df_DetailEngDaily_sorted = pd.DataFrame()        # hold return data
         self.response_dict = 'null'
         self.token = 'null'
         self.payload = {}
@@ -160,9 +161,12 @@ class test_AnalyticsEngagementDetailReport:
             check.not_equal(len(self.DetailedReportDaily_df), 0, 'test_AnalyticdED_sendRequest:: \
                     test_getSearchAndReplay() no df returned')
             LOGGER.info(f'test_AnalyticdED_sendRequest:: Analytics DetailedReportDaily_df create OK, attempt df dump to csv to {self.csv_Daily_output}')
+            self.df_DetailEngDaily_sorted = self.DetailedReportDaily_df.sort_values(by='dialog_start_time',
+                                                                                    ascending=False)
             # write the csv files
             try:
-                self.DetailedReportDaily_df.to_csv(self.csv_Daily_output, index=False,
+
+                self.df_DetailEngDaily_sorted.to_csv(self.csv_Daily_output, index=False,
                                                                      header=self.column_names)
             except:
                 LOGGER.exception('test_AnalyticdED_sendRequest::  daily csv creation error')

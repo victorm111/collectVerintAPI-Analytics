@@ -82,7 +82,7 @@ class test_ClassCollectEngID:
         LOGGER.debug('test_collect_df:: test_Analytics_ED_buildRequest()')
         test_DetailReport.test_Analytics_ED_buildRequest(getCCaaSToken)
         LOGGER.debug('test_collect_df:: test_Analytics_ED_buildRequest()')
-        self.df_DetailEngDaily, self.number_calls, self.ED_column_headers = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves daily data
+        self.df_DetailEngDaily, self.AnalyticsNumber_calls, self.ED_column_headers = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves daily data
 
 
         LOGGER.debug(
@@ -125,7 +125,7 @@ class test_ClassCollectEngID:
         LOGGER.debug(
             'test_collect_df:: test_getCaptVerifCSV() capt verif zip/csv results finished')
 
-        LOGGER.debug(f'test_collect_df:: finished collecting Analytics and Verint API data, number of calls returned from Analytics Engagement Detail Report API: {self.number_calls}')
+        LOGGER.debug('test_collect_df:: finished collecting Analytics and Verint API data')
 
         return
 
@@ -135,18 +135,17 @@ class test_ClassCollectEngID:
         if self.AnalyticsNumber_calls != 0:
 
             # sort by start times
-            self.df_SR_sorted = self.df_SR.sort_values(by='local_audio_start_time', ascending=True)
-            self.df_DetailEngDaily_sorted = self.df_DetailEngDaily.sort_values(by='dialog_start_time', ascending=True)
-            self.df_CaptVerificationDaily_sorted = self.df_CaptVerificationDaily.sort_values(by='Start time', ascending=True)
-            LOGGER.debug(f'test_collectDF:: test_compare_df:: Analytics ED no. calls: {len(self.df_DetailEngDaily)}, Verint S&R no. calls: {len(self.df_SR)}, Verint Capture Verif no. calls {len(self.df_CaptVerificationDaily)} ')
+            self.df_SR_sorted = self.df_SR.sort_values(by='local_audio_start_time', ascending=False)
+            self.df_DetailEngDaily_sorted = self.df_DetailEngDaily.sort_values(by='dialog_start_time', ascending=False)
+            self.df_CaptVerificationDaily_sorted = self.df_CaptVerificationDaily.sort_values(by='Start time', ascending=False)
+            LOGGER.info(f'test_collectDF:: test_compare_df:: Analytics ED no. calls: {len(self.df_DetailEngDaily)}, Verint S&R no. calls: {len(self.df_SR)}, Verint Capture Verif no. calls {len(self.df_CaptVerificationDaily)} ')
             LOGGER.debug('test_collectDF:: test_compare_df:: start compare dataframes, collect Analytics Eng Detail engagement_ids')
             self.dfAnalyticsED_EngIDS = self.df_DetailEngDaily.engagement_id
 
             LOGGER.debug(f'test_collectDF:: test_compare_df:: Analytics ED eng ids are: \n {self.dfAnalyticsED_EngIDS}')
-            self.dfSR_EngIDS = list(self.df_SR.cd8)
+            self.dfSR_EngIDS = list(self.df_SR_sorted.cd8)
             self.dfSR_CallStarts = list(self.df_SR.local_audio_start_time)
             self.SR_column_headers = list(self.df_SR_sorted.columns)
-            self.df_DetailEngDaily_sorted = self.df_DetailEngDaily.sort_values(by='dialog_start_time', ascending=True)
 
             LOGGER.debug(f'test_collectDF:: test_compare_df:: Verint S&R eng ids are: \n {self.dfSR_EngIDS}')
             LOGGER.info(f'test_collectDF:: test_compare_df:: ASSERTION check that all CCaaS Analytics ED Eng call IDs (as reference) are all listed in AWE S&R recorded call Eng IDs')
@@ -168,11 +167,11 @@ class test_ClassCollectEngID:
                 # update test dictionary
                 self.listTest["Result"].append("FAILED")
                 LOGGER.error(
-                    f'test_compare_df:: test_compare_df() ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} !!!!!!!! calls reported in Analytics (as reference) not in Verint S&R !!!!!!!')
-                LOGGER.error(
+                    f'test_compare_df:: test_compare_df() !!!!!!!!  ERROR {len(self.df_DetailEngDaily_sorted_NotRecorded)} calls reported in Analytics (as reference) not in Verint S&R !!!!!!!')
+                LOGGER.debug(
                     f'test_compare_df:: test_compare_df() ERROR !!!!!!!! listing call eng ids reported in Analytics not in Verint S&R : {self.df_DetailEngDaily_sorted_NotRecorded}')
 
-                LOGGER.debug(
+                LOGGER.error(
                     f'test_compare_df:: test_compare_df() attempt dump ERROR calls to csv in dir: {self.csv_DailyMissing_output}')
 
                 try:
@@ -192,8 +191,9 @@ class test_ClassCollectEngID:
         else:
 
             LOGGER.info(
-                f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED, double check no calls returned from AWE S&R *********')
-
+                f'test_collectDF:: ********** test_compare_df:: no calls returned from Analytics ED *********')
+            LOGGER.info(
+                f'test_collectDF:: ********** test_compare_df:: ASSERTION check >> double check no calls returned from AWE S&R *********')
             # double check AWE S&R also equal to zero calls
             try:
                 self.listTest["TestName"].append("checkZeroAnalyticsEngIDsAlsoInAWE-S&R")
@@ -246,9 +246,7 @@ class test_ClassCollectEngID:
 
                 self.tests_failed += 1
                 # update test dictionary
-
                 self.listTest["Result"].append("FAILED")
-
 
                 LOGGER.error(
                     f'test_compare_df::  !!!! ERROR number of calls reported in Verint S&R but not in Analytics ED report: {len(self.df_sorted_Recorded_notIn_DetailEngDaily)}')
@@ -274,9 +272,11 @@ class test_ClassCollectEngID:
 
         else:
             LOGGER.info(
-                'test_compare_df::no calls returned from AWE S&R, double check no calls also returned from Analytics')
+                'test_compare_df::no calls returned from AWE S&R')
 
             try:
+                LOGGER.info(
+                    'test_compare_df:: ASSERTION check no AWE S&R calls confirm also no calls returned from Analytics')
                 # update test dictionary
                 self.listTest["TestName"].append("checkZeroAWECalls-MatchedInAnalyticsEDreport")
 
