@@ -5,10 +5,9 @@
 # set working dir below to be same as this
 # Version label
 latest_24hrs:
-  enable: !!bool TRUE     # if TRUE just retrieves + compares data from  midnight to midnight yesterday ONLY, if FALSE will take hard coded start time in py files
+  enable: !!bool False     # if TRUE just retrieves + compares data from  midnight to midnight yesterday ONLY, if FALSE will take hard coded start time in py files
 
 dirs:
-  working: !!str "C:\\Users\\victorm\\PycharmProjects\\pythonProject1\\auto\\"  # note above wrt PyCharm working + target directories
   SR_to_json_output: !!str './output/SR/SR_daily.json'
   SR_to_csv_output: !!str './output/SR/testSR.csv'
   ED_daily_to_csv_output: !!str './output/EngDetailedReport/testED-Daily.csv'
@@ -17,14 +16,14 @@ dirs:
   #ED_interval_to_csv_output: !!str './output/EngDetailedReport/testED-Interval.csv'
 
 urls:
-  url: !!str "https://releasev2.cc.avayacloud.com"       # prod release v2
-  url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"
-  # url_AnalyticsIntervalDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=start:202312081000,ending:202312081015"              # used after initial login context saved
-  url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?pageSize=150&interval=starting:"     # will append yesterday's date YYYYMMDD
-  url_wfo: !!str "wfo.a31.verintcloudservices.com"
-  url_wfo_captVerifapi: !!str "/api/av/capture_verification/v1/call_segments/issues/search/csv"
-  url_wfo_SearchReplayapi: !!str "/daswebapi/Query/ExecuteDynamicQuery"
-  url_wfo_token: !!str "https://wfo.a31.verintcloudservices.com/wfo/rest/core-api/auth/token"
+  url: !!str "https://releasev2.cc.avayacloud.com"       # CCaaS url, prod release v2
+  url_api_token: !!str "/auth/realms/IKHHJK/protocol/openid-connect/token"    # CCaaS token request url
+  url_AnalyticsDailyDetailed: !!str "/api/analytics/historical/v1beta/accounts/IKHHJK/reports/EngagementDetail?interval=starting:" # CCaaS analytics ED API REQUEST URL
+  url_AnalyticsDailyDetailed_pageSize: !!int 30 # ED request pageSize, equivalent to response number engagements per page
+  url_wfo: !!str "wfo.a31.verintcloudservices.com"    # AWE system endpoint url
+  url_wfo_captVerifapi: !!str "/api/av/capture_verification/v1/call_segments/issues/search/csv"   # AWE capt verif request url
+  url_wfo_SearchReplayapi: !!str "/daswebapi/Query/ExecuteDynamicQuery"                           # AWE S&R request url
+  url_wfo_token: !!str "https://wfo.a31.verintcloudservices.com/wfo/rest/core-api/auth/token"     # AWE token request url
 # CCaaS API credentials
 auth:
   clientid : !!str "wfm"                                          # Analytics clientid

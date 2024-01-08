@@ -2,6 +2,7 @@ import pytest
 import logging
 import pytest
 import os
+import pip_system_certs.wrapt_requests      # to allow work with PyInstaller
 
 import time as time
 from datetime import date,  timedelta

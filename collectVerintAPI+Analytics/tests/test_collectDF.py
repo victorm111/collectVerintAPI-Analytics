@@ -72,6 +72,9 @@ class test_ClassCollectEngID:
         self.number_of_tests = 0    # number of comparison tests incl capt verif test
         self.listTest = {"TestName":[],"Result":[], "Description":[]}   # table containing test results
         self.TestResults_df = pd.DataFrame()  # as per self.listTest but a pandas df
+        self.ED_session = ''        # request session
+        self.ED_prepped = ''        # prepped request
+        self.ED_url = ''            # prepped URL
 
     def test_collect_df(self, test_read_config_file, getCCaaSToken, getVerintToken) -> any:
         """run Analytics detailed Eng , Verint Capt Verif + S&R API, collect df"""
@@ -80,10 +83,9 @@ class test_ClassCollectEngID:
         LOGGER.debug('test_collect_df:: init test_AnalyticsEngagementDetailReport class')
         test_DetailReport = test_AnalyticsEngagementDetailReport(test_read_config_file)
         LOGGER.debug('test_collect_df:: test_Analytics_ED_buildRequest()')
-        test_DetailReport.test_Analytics_ED_buildRequest(getCCaaSToken)
+        self.ED_session, self.ED_prepped = test_DetailReport.test_Analytics_ED_buildRequest(getCCaaSToken)
         LOGGER.debug('test_collect_df:: test_Analytics_ED_buildRequest()')
-        self.df_DetailEngDaily, self.AnalyticsNumber_calls, self.ED_column_headers = test_DetailReport.test_AnalyticdED_sendRequest()  # retrieves daily data
-
+        self.df_DetailEngDaily, self.AnalyticsNumber_calls, self.ED_column_headers = test_DetailReport.test_AnalyticdED_sendRequest(self.ED_session, self.ED_prepped)  # retrieves daily data
 
         LOGGER.debug(
             'test_collect_df:: init test_SearchReplay class')
