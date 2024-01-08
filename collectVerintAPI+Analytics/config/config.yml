@@ -26,7 +26,7 @@ urls:
   url_wfo_token: !!str "https://wfo.a31.verintcloudservices.com/wfo/rest/core-api/auth/token"     # AWE token request url
 # CCaaS API credentials
 auth:
-  clientid : !!str "wfm"                                          # Analytics clientid
+  clientid : !!str  "wfm"                                          # Analytics clientid
   secret : !!str "nu6rSdYUVn0ooaXugpGmdkoXs2aEGdhd"               # Analytics secret
   wfo_token_user: !!str "api_user@verintnew01.prodreleasev2.com"  # Verint API user
   wfo_token_password: !!str "1_Abc_123"                           # Verint API password
