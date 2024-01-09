@@ -55,7 +55,7 @@ class test_AnalyticsEngagementDetailReport:
 
         ###self.URL_api_daily = test_read_config_file['urls']['url_AnalyticsDailyDetailed'] + self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         # send message format: starting:202312190000,ending:202312200000
-        self.interval_dates = '20231218' + '0000' + ',ending:' + self.todaydate + '0000'
+        self.interval_dates = '20230118' + '0000' + ',ending:' + self.todaydate + '0000'
         # self.interval_dates = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
         if self.collect_yesterday:
             self.interval_dates = self.yesterdaydate + '0000' + ',ending:' + self.todaydate + '0000'
@@ -168,21 +168,18 @@ class test_AnalyticsEngagementDetailReport:
         else:
             assert self.s.status_code == 200, 'test_AnalyticdED_sendRequest() session request response not 200 OK'
 
-            LOGGER.info(f'test_AnalyticdED_sendRequest:: response received: {self.s.status_code}, page: {self.page_number}')
+            LOGGER.info(f'test_AnalyticdED_sendRequest:: first page response received: {self.s.status_code}, page: {self.page_number}')
             # load json from response
             self.response_dict = json.loads(self.s.text)        # retrieve returned data
             self.response_dict_append.append(self.response_dict)      # append response data
             self.s.raise_for_status()
-            LOGGER.info(f'test_AnalyticdED_sendRequest:: response received, cookies: {self.s.cookies}')
+            LOGGER.debug(f'test_AnalyticdED_sendRequest:: first response received, cookies: {self.s.cookies}')
 
             # raise for status raises an exception if non 200 OK resp
             # pull next page if applicable
 
             while self.response_dict['pagination']['nextPageToken'] != '' :
 
-                LOGGER.debug(f'test_AnalyticdED_sendRequest:: 200 OK received, start multi-page handling, page: {self.page_number}')
-                LOGGER.debug(
-                    f'test_AnalyticdED_sendRequest:: 200 OK received, start multi-page handling, nextpageToken: {self.response_dict['pagination']['nextPageToken']}')
                 self.page_number += 1   # increment page number, first page = 0, second page index = 1 etc
                 self.s = ''             # reset request response
                 #self.token_append = 'Bearer ' + self.response_dict['pagination']['nextPageToken']
@@ -198,8 +195,11 @@ class test_AnalyticsEngagementDetailReport:
                 # need try here??
                 # update url with page and token detail
                 self.preppedReq.url = self.URL + self.URL_api_withNextPageToken
-                LOGGER.info(f'test_AnalyticdED_sendRequest:: cookies before multipage req: {self.session.cookies}')
+                LOGGER.debug(f'test_AnalyticdED_sendRequest:: cookies before multipage req: {self.session.cookies}')
 
+                LOGGER.debug(
+                    f'test_AnalyticdED_sendRequest:: multipage before send request nextpageToken: {self.response_dict['pagination']['nextPageToken']}')
+                LOGGER.debug(f'test_AnalyticdED_sendRequest:: multipage request, token_append: {self.token_append}')
                 try:
                     self.s = self.session.send(self.preppedReq, timeout=25, verify=True)  # send request
 
@@ -216,13 +216,15 @@ class test_AnalyticsEngagementDetailReport:
 
                     # self.s = self.session.get(self.URL + self.URL_api_withNextPageToken, timeout=25, verify=True)  # send request
                     self.s.raise_for_status()
-                    self.response_dict = json.loads(self.s.text)  # single page  returned data
+                    self.response_dict = json.loads(self.s.text)  # single page returned data
                     self.response_dict_append.append(self.response_dict)
-
-                    LOGGER.debug(f'test_AnalyticdED_sendRequest:: page response loop, page: {self.page_number}, token: {self.token_append}')
+                    LOGGER.debug(
+                        f'test_AnalyticdED_sendRequest:: multipage response received: {self.s.status_code}, page: {self.page_number}, number of calls: {len(self.response_dict['records'])}')
+                    LOGGER.debug(f'test_AnalyticdED_sendRequest:: cookies after multipage response: {self.session.cookies}')
+                    LOGGER.debug(f'test_AnalyticdED_sendRequest:: multi page response, token_append: {self.token_append}')
 
             else:
-                LOGGER.debug(f'test_AnalyticdED_sendRequest:: end multi-page handling, page: {self.page_number}')
+                LOGGER.info(f'test_AnalyticdED_sendRequest:: end multi-page handling, page: {self.page_number}')
 
 
             ######################
@@ -235,7 +237,7 @@ class test_AnalyticsEngagementDetailReport:
             calls = int(len(self.response_dict_append[i].get('records')))
             self.no_calls = calls + self.no_calls
 
-        LOGGER.info(f'test_AnalyticdED_sendRequest:: calls found: {self.no_calls}')
+        LOGGER.info(f'test_AnalyticdED_sendRequest:: calls found: {self.no_calls}, number pages: {self.page_number}, pageSize requested: {self.pageSizeInt}' )
 
         # if multi page loop through list of dictionaries each containing a page of response data
         if self.no_calls:
